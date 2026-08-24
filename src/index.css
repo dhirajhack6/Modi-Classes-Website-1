@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .perspective-2000 {
+    perspective: 2000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
+
+@keyframes float-smooth {
+  0%, 100% {
+    transform: translateY(0px) rotateY(-8deg) rotateX(4deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateY(-2deg) rotateX(1deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3), 0 0 50px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 45px rgba(245, 158, 11, 0.6), 0 0 80px rgba(59, 130, 246, 0.4);
+  }
+}
+
+@keyframes signal-blink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes light-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes track-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 0;
+  }
+}
+
+.animate-float-book {
+  animation: float-smooth 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-signal {
+  animation: signal-blink 2s ease-in-out infinite;
+}
+
+.animate-sweep {
+  animation: light-sweep 4s ease-in-out infinite;
+}
+
+.railway-track-pattern {
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0, rgba(255, 255, 255, 0.1) 2px, transparent 2px, transparent 12px);
+  background-size: 24px 100%;
+}
+
+/* 3D Book styling */
+.book-3d-container {
+  perspective: 1200px;
+}
+
+.book-3d-wrapper {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.book-shadow-3d {
+  filter: drop-shadow(-20px 25px 25px rgba(0, 0, 0, 0.45));
+}

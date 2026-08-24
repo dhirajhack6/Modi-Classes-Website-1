@@ -1,0 +1,6 @@
+{
+  "name": "Modi Railway Psychotest Classes",
+  "description": "Official store and training portal for RRB ALP (Assistant Loco Pilot) & Technician Psychological Aptitude Test (CBAT) Master Book & Practice Sets by Modi Railway Psychotest Classes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
