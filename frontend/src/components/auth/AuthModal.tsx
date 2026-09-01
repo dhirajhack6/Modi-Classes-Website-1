@@ -37,9 +37,11 @@ export const AuthModal: React.FC = () => {
   // OTP stage state
   const [otpValue, setOtpValue] = useState(['', '', '', '']);
   const [otpSentTo, setOtpSentTo] = useState('');
-  const [generatedDemoOtp, setGeneratedDemoOtp] = useState('7829');
+  const [generatedDemoOtp, setGeneratedDemoOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [pendingSignupData, setPendingSignupData] = useState<{ name: string; phone: string; email: string } | null>(null);
+  const [otpPurpose, setOtpPurpose] = useState<'login' | 'signup'>('login');
 
   if (!isAuthModalOpen) return null;
 
@@ -57,16 +59,28 @@ export const AuthModal: React.FC = () => {
       return;
     }
 
-    // Flipkart-style: Trigger OTP or direct fast auth
-    const demoOtp = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedDemoOtp(demoOtp);
-    setOtpSentTo(identifier.trim());
     setIsLoading(true);
-    
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifier.trim() })
+      });
+      const data = await response.json();
       setIsLoading(false);
-      setAuthModalMode('otp');
-    }, 600);
+
+      if (response.ok && data.success) {
+        setOtpSentTo(identifier.trim());
+        setOtpPurpose('login');
+        setGeneratedDemoOtp(data.debugOtp || '');
+        setAuthModalMode('otp');
+      } else {
+        setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage('Network error. Failed to send OTP.');
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -78,10 +92,35 @@ export const AuthModal: React.FC = () => {
     }
 
     setIsLoading(true);
-    const res = await login(otpSentTo || identifier);
-    setIsLoading(false);
-    if (!res.success) {
-      setErrorMessage(res.error || 'Authentication failed. Please try again.');
+    try {
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: otpSentTo, otp: entered })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (otpPurpose === 'login') {
+          const res = await login(otpSentTo);
+          setIsLoading(false);
+          if (!res.success) {
+            setErrorMessage(res.error || 'Authentication failed. Please try again.');
+          }
+        } else if (otpPurpose === 'signup' && pendingSignupData) {
+          const res = await signup(pendingSignupData);
+          setIsLoading(false);
+          if (!res.success) {
+            setErrorMessage(res.error || 'Registration failed.');
+          }
+        }
+      } else {
+        setIsLoading(false);
+        setErrorMessage(data.error || 'Invalid OTP code. Please check and try again.');
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage('Network error. Failed to verify OTP.');
     }
   };
 
@@ -102,14 +141,28 @@ export const AuthModal: React.FC = () => {
     }
 
     setIsLoading(true);
-    const res = await signup({
-      name: fullName,
-      phone: signupPhone,
-      email: signupEmail
-    });
-    setIsLoading(false);
-    if (!res.success) {
-      setErrorMessage(res.error || 'Registration failed.');
+    const targetPhone = signupPhone.trim();
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: targetPhone })
+      });
+      const data = await response.json();
+      setIsLoading(false);
+
+      if (response.ok && data.success) {
+        setPendingSignupData({ name: fullName, phone: signupPhone, email: signupEmail });
+        setOtpSentTo(targetPhone);
+        setOtpPurpose('signup');
+        setGeneratedDemoOtp(data.debugOtp || '');
+        setAuthModalMode('otp');
+      } else {
+        setErrorMessage(data.error || 'Failed to send verification OTP.');
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage('Network error. Failed to send verification OTP.');
     }
   };
 
@@ -397,16 +450,18 @@ export const AuthModal: React.FC = () => {
                 </p>
 
                 {/* Auto-helper banner for demo instant test */}
-                <div className="p-2.5 mb-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center justify-between">
-                  <span>Demo OTP Code: <strong className="text-amber-900 tracking-wider text-sm">{generatedDemoOtp}</strong></span>
-                  <button
-                    type="button"
-                    onClick={() => setOtpValue(generatedDemoOtp.split(''))}
-                    className="text-xs font-semibold text-[#2874f0] underline hover:text-blue-700"
-                  >
-                    Auto-Fill
-                  </button>
-                </div>
+                {generatedDemoOtp && (
+                  <div className="p-2.5 mb-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center justify-between">
+                    <span>Demo OTP Code: <strong className="text-amber-900 tracking-wider text-sm">{generatedDemoOtp}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setOtpValue(generatedDemoOtp.split(''))}
+                      className="text-xs font-semibold text-[#2874f0] underline hover:text-blue-700"
+                    >
+                      Auto-Fill
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-center gap-3">
                   {[0, 1, 2, 3].map((idx) => (
@@ -445,10 +500,27 @@ export const AuthModal: React.FC = () => {
                 Didn't receive the OTP?{' '}
                 <button
                   type="button"
-                  onClick={() => {
-                    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
-                    setGeneratedDemoOtp(newOtp);
-                    setOtpValue(['', '', '', '']);
+                  onClick={async () => {
+                    setErrorMessage('');
+                    setIsLoading(true);
+                    try {
+                      const response = await fetch('/api/auth/send-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identifier: otpSentTo })
+                      });
+                      const data = await response.json();
+                      setIsLoading(false);
+                      if (response.ok && data.success) {
+                        setOtpValue(['', '', '', '']);
+                        setGeneratedDemoOtp(data.debugOtp || '');
+                      } else {
+                        setErrorMessage(data.error || 'Failed to resend OTP.');
+                      }
+                    } catch (err) {
+                      setIsLoading(false);
+                      setErrorMessage('Network error. Failed to resend OTP.');
+                    }
                   }}
                   className="font-semibold text-[#2874f0] hover:underline"
                 >

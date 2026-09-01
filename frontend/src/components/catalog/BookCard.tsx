@@ -31,7 +31,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book }) => {
   const [isAddedRecently, setIsAddedRecently] = useState(false);
 
   // Check if current user is enrolled in any linked coaching batch
-  const isEnrolledInBatch = book.linkedBatches?.some((b) => currentUser.enrolledBatches.includes(b)) || false;
+  const isEnrolledInBatch = currentUser?.enrolledBatches ? book.linkedBatches?.some((b) => currentUser.enrolledBatches.includes(b)) : false;
   const isPdfFreeForUser = isEnrolledInBatch && book.batchDiscountPercent === 100;
 
   // Calculate pricing based on active format

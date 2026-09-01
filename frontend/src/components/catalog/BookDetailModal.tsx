@@ -46,14 +46,14 @@ export const BookDetailModal: React.FC = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
-  const [reviewRole, setReviewRole] = useState(currentUser.enrolledBatches[0] || 'UPSC Aspirant');
+  const [reviewRole, setReviewRole] = useState(currentUser?.enrolledBatches?.[0] || 'UPSC Aspirant');
 
   if (!selectedBookForDetail) return null;
 
   const book = selectedBookForDetail;
   const bookReviews = reviews.filter((r) => r.bookId === book.id);
 
-  const isUserInBatch = book.linkedBatches?.some((b) => currentUser.enrolledBatches.includes(b)) || false;
+  const isUserInBatch = currentUser && book.linkedBatches?.some((b) => currentUser.enrolledBatches?.includes(b)) || false;
   const isPdfFreeForUser = selectedFormat === 'pdf' && isUserInBatch && book.batchDiscountPercent === 100;
 
   // Price calculations
@@ -94,7 +94,7 @@ export const BookDetailModal: React.FC = () => {
     if (!reviewComment.trim()) return;
     addReview({
       bookId: book.id,
-      userName: currentUser.name,
+      userName: currentUser?.name || 'Anonymous Student',
       userBatch: reviewRole,
       rating: reviewRating,
       comment: reviewComment.trim(),

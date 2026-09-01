@@ -132,12 +132,12 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(book, quantity, 'hardcopy');
+    addToCart(book, 'hardcopy', quantity);
     setIsCartDrawerOpen(true);
   };
 
   const handleInstantBuy = () => {
-    openCheckoutDirect(book, quantity, 'hardcopy');
+    openCheckoutDirect(book, 'hardcopy', quantity);
   };
 
   return (
@@ -541,7 +541,7 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
                 id="instant-buy-btn"
               >
                 <ShoppingBag className="w-5 h-5" />
-                <span>Buy Physical Book Now • ₹{unitPrice * quantity}</span>
+                <span>Buy Book Now • ₹{unitPrice * quantity}</span>
               </button>
             </div>
 

@@ -87,26 +87,28 @@ export const BookFilters: React.FC = () => {
       </div>
 
       {/* Enrolled Coaching Batch Quick Filter Banner */}
-      <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80">
-        <div className="flex items-start gap-2">
-          <GraduationCap className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs font-bold text-amber-950">Batch Free Access</p>
-            <p className="text-[11px] text-amber-800 leading-snug mb-2">
-              Enrolled in <strong>{currentUser.enrolledBatches.join(', ')}</strong>? You get 100% free digital PDFs!
-            </p>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-amber-900">
-              <input
-                type="checkbox"
-                checked={batchOnlyFilter}
-                onChange={(e) => setBatchOnlyFilter(e.target.checked)}
-                className="w-3.5 h-3.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
-              />
-              <span>Show my batch study materials only</span>
-            </label>
+      {currentUser && (
+        <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80">
+          <div className="flex items-start gap-2">
+            <GraduationCap className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-bold text-amber-950">Batch Free Access</p>
+              <p className="text-[11px] text-amber-800 leading-snug mb-2">
+                Enrolled in <strong>{currentUser.enrolledBatches?.join(', ') || ''}</strong>? You get 100% free digital PDFs!
+              </p>
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={batchOnlyFilter}
+                  onChange={(e) => setBatchOnlyFilter(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                />
+                <span>Show my batch study materials only</span>
+              </label>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Sort By Dropdown */}
       <div>

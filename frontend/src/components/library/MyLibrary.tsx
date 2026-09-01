@@ -34,6 +34,8 @@ export const MyLibrary: React.FC = () => {
     addToast 
   } = useApp();
 
+  if (!currentUser) return null;
+
   const [searchFilter, setSearchFilter] = useState('');
   const [readingLicense, setReadingLicense] = useState<{ book: Book; license: DigitalLicense } | null>(null);
   

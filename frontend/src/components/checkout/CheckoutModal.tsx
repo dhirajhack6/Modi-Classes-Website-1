@@ -233,11 +233,11 @@ export const CheckoutModal: React.FC = () => {
           isBatchFree: false
         })),
         subtotal: cartSubtotal,
-        discountAmount: cartDiscount,
+        discount: cartDiscount,
         shippingFee: 0,
         codFee: codSurcharge,
         taxAmount: Math.round(cartSubtotal * 0.05),
-        finalTotal,
+        totalAmount: finalTotal,
         paymentMethod,
         paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
         orderStatus: 'confirmed',

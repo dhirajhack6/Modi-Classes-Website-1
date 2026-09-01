@@ -25,7 +25,7 @@ export const AlpRankerWall: React.FC = () => {
             <span>LOCO PILOT WALL OF FAME</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 tracking-tight">
-            Trusted by 1,840+ Selected <span className="text-amber-700">Railway Loco Pilots</span>
+            Trusted by 15000+ Selected <span className="text-amber-700">Railway Loco Pilots</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-600">
             Real feedback from candidates who mastered the 5 RDSO batteries with Modi Classes and are now driving trains across Indian Railways.

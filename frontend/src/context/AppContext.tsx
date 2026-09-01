@@ -386,6 +386,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('modi_user', JSON.stringify(newUser));
     setIsAuthModalOpen(false);
     addToast('success', `Welcome to Modi Classes, ${newUser.name}!`, 'Account created & logged in successfully.');
+    
+    // POST to backend
+    fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    }).catch(err => console.error('Error saving user to DB:', err));
+
     return { success: true };
   };
 
@@ -415,15 +423,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('modi_user', JSON.stringify(newUser));
     setIsAuthModalOpen(false);
     addToast('success', 'Account Created Successfully!', `Welcome to Modi Railway Classes, ${newUser.name}`);
+
+    // POST to backend
+    fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    }).catch(err => console.error('Error saving user to DB:', err));
+
     return { success: true };
   };
 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('modi_user');
-    if (activeView === 'admin') {
-      setActiveView('catalog');
-    }
+    setActiveView('catalog');
+    setIsProfileModalOpen(false);
     addToast('info', 'Logged Out', 'You have been signed out safely.');
   };
 
@@ -439,6 +454,52 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Load initial data from the database APIs on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const booksRes = await fetch('/api/books');
+        if (booksRes.ok) {
+          const booksData = await booksRes.json();
+          setBooks(booksData);
+        }
+        
+        const ordersRes = await fetch('/api/orders');
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          setOrders(ordersData);
+        }
+
+        const reviewsRes = await fetch('/api/reviews');
+        if (reviewsRes.ok) {
+          const reviewsData = await reviewsRes.json();
+          setReviews(reviewsData);
+        }
+
+        const couponsRes = await fetch('/api/coupons');
+        if (couponsRes.ok) {
+          const couponsData = await couponsRes.json();
+          setCoupons(couponsData);
+        }
+
+        const usersRes = await fetch('/api/users');
+        if (usersRes.ok) {
+          const usersData = await usersRes.json();
+          setUsersList(usersData);
+        }
+
+        const bulkRes = await fetch('/api/bulk');
+        if (bulkRes.ok) {
+          const bulkData = await bulkRes.json();
+          setBulkInquiries(bulkData);
+        }
+      } catch (err) {
+        console.error('Error loading data from database APIs:', err);
+      }
+    };
+    loadData();
+  }, []);
 
   // Sync to local storage
   useEffect(() => {
@@ -495,39 +556,55 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ...addressData,
       id: 'addr-' + Date.now()
     };
-    setCurrentUser((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        savedAddresses: [...(prev.savedAddresses || []), newAddress]
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        savedAddresses: [...(currentUser.savedAddresses || []), newAddress]
       };
-    });
+      setCurrentUser(updatedUser);
+      // PUT to backend
+      fetch(`/api/users/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+      }).catch(err => console.error('Error updating user addresses in DB:', err));
+    }
     addToast('success', 'Address Saved', `${newAddress.city}, ${newAddress.pincode} added.`);
   };
 
   const setDefaultAddress = (addressId: string) => {
-    setCurrentUser((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        savedAddresses: (prev.savedAddresses || []).map((a) => ({
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        savedAddresses: (currentUser.savedAddresses || []).map((a) => ({
           ...a,
           isDefault: a.id === addressId
         }))
       };
-    });
+      setCurrentUser(updatedUser);
+      fetch(`/api/users/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+      }).catch(err => console.error('Error updating default address in DB:', err));
+    }
   };
 
   const toggleBatchEnrollment = (batchName: string) => {
-    setCurrentUser((prev) => {
-      if (!prev) return prev;
-      const enrolled = prev.enrolledBatches || [];
+    if (currentUser) {
+      const enrolled = currentUser.enrolledBatches || [];
       const exists = enrolled.includes(batchName);
       const updated = exists 
         ? enrolled.filter(b => b !== batchName)
         : [...enrolled, batchName];
-      return { ...prev, enrolledBatches: updated };
-    });
+      const updatedUser = { ...currentUser, enrolledBatches: updated };
+      setCurrentUser(updatedUser);
+      fetch(`/api/users/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+      }).catch(err => console.error('Error updating enrolled batches in DB:', err));
+    }
     addToast('success', 'Batch Updated', `Toggled enrollment in ${batchName}`);
   };
 
@@ -884,6 +961,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
+
+    // POST to backend
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrder)
+    }).catch(err => console.error('Error saving order to DB:', err));
+
     return newOrder;
   };
 
@@ -893,6 +978,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     trackingNumber?: string, 
     courierPartner?: Order['courierPartner']
   ) => {
+    let updatedOrder: any = null;
     setOrders((prev) =>
       prev.map((order) => {
         if (order.id === orderId) {
@@ -906,17 +992,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
             return step;
           });
-          return {
+          updatedOrder = {
             ...order,
             orderStatus: status,
             trackingNumber: trackingNumber || order.trackingNumber,
             courierPartner: courierPartner || order.courierPartner,
-            trackingTimeline: updatedTimeline
+            trackingTimeline: updatedTimeline,
+            paymentStatus: status === 'delivered' ? 'paid' : order.paymentStatus
           };
+          return updatedOrder;
         }
         return order;
       })
     );
+
+    if (updatedOrder) {
+      fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderStatus: updatedOrder.orderStatus,
+          courierPartner: updatedOrder.courierPartner,
+          trackingNumber: updatedOrder.trackingNumber,
+          estimatedDeliveryDate: updatedOrder.estimatedDeliveryDate,
+          trackingTimeline: updatedOrder.trackingTimeline,
+          paymentStatus: updatedOrder.paymentStatus
+        })
+      }).catch(err => console.error('Error updating order in DB:', err));
+    }
     addToast('success', 'Order Updated', `Order ${orderId} status set to ${status}.`);
   };
 
@@ -924,13 +1027,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, orderStatus: 'cancelled', notes: reason } : ord))
     );
+    fetch(`/api/orders/${orderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderStatus: 'cancelled', notes: reason })
+    }).catch(err => console.error('Error cancelling order in DB:', err));
     addToast('info', 'Order Cancelled', `Order has been marked cancelled.`);
   };
 
   const requestReturn = (orderId: string, reason: string) => {
+    const notesText = `Return Requested: ${reason}`;
     setOrders((prev) =>
-      prev.map((ord) => (ord.id === orderId ? { ...ord, notes: `Return Requested: ${reason}` } : ord))
+      prev.map((ord) => (ord.id === orderId ? { ...ord, notes: notesText } : ord))
     );
+    fetch(`/api/orders/${orderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: notesText })
+    }).catch(err => console.error('Error request return in DB:', err));
     addToast('success', 'Return Request Submitted', 'Our logistics team will verify and initiate reverse pickup.');
   };
 
@@ -986,6 +1100,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBooks((prev) =>
       prev.map((b) => (b.id === reviewData.bookId ? { ...b, rating: avg, reviewCount: b.reviewCount + 1 } : b))
     );
+
+    // POST to backend
+    fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newReview)
+    })
+    .then(async (res) => {
+      if (res.ok) {
+        // Refresh books list to ensure accurate sync of computed rating from DB
+        const booksRes = await fetch('/api/books');
+        if (booksRes.ok) {
+          setBooks(await booksRes.json());
+        }
+      }
+    })
+    .catch(err => console.error('Error adding review to DB:', err));
+
     addToast('success', 'Review Published', 'Thank you for your valuable feedback!');
   };
 
@@ -997,6 +1129,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: new Date().toISOString()
     };
     setBulkInquiries((prev) => [newInquiry, ...prev]);
+
+    // POST to backend
+    fetch('/api/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newInquiry)
+    }).catch(err => console.error('Error saving bulk inquiry to DB:', err));
+
     addToast('success', 'Bulk Inquiry Submitted', 'Our institutional sales team will contact you with a customized discount quote within 4 hours.');
   };
 
@@ -1004,6 +1144,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBulkInquiries((prev) =>
       prev.map((b) => (b.id === id ? { ...b, status } : b))
     );
+
+    // POST/PUT to backend
+    fetch('/api/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    }).catch(err => console.error('Error updating bulk inquiry status in DB:', err));
+
     addToast('info', 'Status Updated', `Inquiry status changed to ${status}.`);
   };
 
@@ -1016,6 +1164,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: new Date().toISOString()
     };
     setBooks((prev) => [newBook, ...prev]);
+
+    // POST to backend
+    fetch('/api/books', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newBook)
+    }).catch(err => console.error('Error adding book to DB:', err));
+
     addToast('success', 'Book Published', `${newBook.title} is now active in catalog.`);
   };
 
@@ -1023,11 +1179,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBooks((prev) =>
       prev.map((b) => (b.id === id ? { ...b, ...updates } : b))
     );
+
+    // PUT to backend
+    fetch(`/api/books/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    }).catch(err => console.error('Error updating book in DB:', err));
+
     addToast('success', 'Book Updated', 'Changes saved successfully.');
   };
 
   const deleteBook = (id: string) => {
     setBooks((prev) => prev.filter((b) => b.id !== id));
+
+    // DELETE to backend
+    fetch(`/api/books/${id}`, {
+      method: 'DELETE'
+    }).catch(err => console.error('Error deleting book from DB:', err));
+
     addToast('info', 'Book Deleted', 'Book removed from catalog.');
   };
 
@@ -1106,9 +1276,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setUsersList((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, enrolledBatches: batches } : u))
     );
-    if (currentUser.id === userId) {
-      setCurrentUser((prev) => ({ ...prev, enrolledBatches: batches }));
+    if (currentUser && currentUser.id === userId) {
+      setCurrentUser((prev) => prev ? { ...prev, enrolledBatches: batches } : null);
     }
+
+    const targetUser = usersList.find((u) => u.id === userId);
+    if (targetUser) {
+      const updatedUser = { ...targetUser, enrolledBatches: batches };
+      fetch(`/api/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+      }).catch(err => console.error('Error updating user batch in DB:', err));
+    }
+    
     addToast('success', 'Batch Assigned', 'Student batch permissions updated.');
   };
 
@@ -1116,6 +1297,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBooks((prev) =>
       prev.map((b) => (b.id === bookId ? { ...b, stockQuantity: Math.max(0, newStock) } : b))
     );
+
+    // PUT to backend
+    fetch(`/api/books/${bookId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stockQuantity: Math.max(0, newStock) })
+    }).catch(err => console.error('Error updating book stock in DB:', err));
+
     addToast('info', 'Stock Updated', 'Inventory level updated.');
   };
 
@@ -1137,13 +1326,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isActive: true
     };
     setCoupons((prev) => [newCoupon, ...prev]);
+
+    // POST to backend
+    fetch('/api/coupons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCoupon)
+    }).catch(err => console.error('Error saving coupon to DB:', err));
+
     addToast('success', 'Coupon Created', `Code ${newCoupon.code} created successfully.`);
   };
 
   const toggleCouponStatus = (couponId: string) => {
+    let updatedCoupon: Coupon | null = null;
     setCoupons((prev) =>
-      prev.map((c) => (c.id === couponId ? { ...c, isActive: !c.isActive } : c))
+      prev.map((c) => {
+        if (c.id === couponId) {
+          updatedCoupon = { ...c, isActive: !c.isActive };
+          return updatedCoupon;
+        }
+        return c;
+      })
     );
+
+    if (updatedCoupon) {
+      fetch('/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCoupon)
+      }).catch(err => console.error('Error toggling coupon in DB:', err));
+    }
+
     addToast('info', 'Coupon Updated', 'Coupon visibility status changed.');
   };
 
