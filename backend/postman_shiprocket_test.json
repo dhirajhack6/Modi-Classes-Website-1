@@ -1,0 +1,74 @@
+{
+  "info": {
+    "_postman_id": "8f5a2a22-31c8-4a94-91fb-13c5dbbf4f9d",
+    "name": "Modi Classes - Shiprocket Local Test",
+    "description": "Temporary integration test collection for validating Shiprocket order payload generation without calling Shiprocket APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Shiprocket Order Payload (TEST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"MC-TEST-001\",\n  \"customer\": {\n    \"first_name\": \"Test\",\n    \"last_name\": \"Customer\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"9999999999\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Test Address\",\n    \"city\": \"Lucknow\",\n    \"state\": \"Uttar Pradesh\",\n    \"pincode\": \"226001\",\n    \"country\": \"India\"\n  },\n  \"product\": {\n    \"name\": \"Modi Classes Book\",\n    \"sku\": \"MODI-BOOK-001\",\n    \"quantity\": 1,\n    \"price\": 499\n  },\n  \"package\": {\n    \"weight\": 1,\n    \"length\": 30,\n    \"breadth\": 22,\n    \"height\": 3\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/test/shiprocket/order",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "test",
+            "shiprocket",
+            "order"
+          ]
+        },
+        "description": "Sends test order data to validate and generate Shiprocket-compatible payload. Does NOT call Shiprocket API."
+      },
+      "response": []
+    },
+    {
+      "name": "Validation Error Example - Invalid Indian Pincode",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"MC-TEST-002\",\n  \"customer\": {\n    \"first_name\": \"Test\",\n    \"last_name\": \"Customer\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"9999999999\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Test Address\",\n    \"city\": \"Lucknow\",\n    \"state\": \"Uttar Pradesh\",\n    \"pincode\": \"000000\",\n    \"country\": \"India\"\n  },\n  \"product\": {\n    \"name\": \"Modi Classes Book\",\n    \"sku\": \"MODI-BOOK-001\",\n    \"quantity\": 1,\n    \"price\": 499\n  },\n  \"package\": {\n    \"weight\": 1,\n    \"length\": 30,\n    \"breadth\": 22,\n    \"height\": 3\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/test/shiprocket/order",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "test",
+            "shiprocket",
+            "order"
+          ]
+        },
+        "description": "Tests validation error handling when an invalid Indian postal code is submitted (returns HTTP 400)."
+      },
+      "response": []
+    }
+  ]
+}
