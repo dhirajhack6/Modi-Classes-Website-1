@@ -226,7 +226,7 @@ export const INITIAL_USERS_LIST: User[] = [
   },
   {
     id: 'usr-104',
-    name: 'Er. Alok Modi',
+    name: 'Sandeep',
     email: 'admin@modiclasses.in',
     phone: '+91 98100 88221',
     role: 'admin',
@@ -249,7 +249,7 @@ export const INITIAL_ORDERS: Order[] = [
       {
         bookId: 'book-alp-psycho',
         bookTitle: 'RRB ALP Psychological Aptitude Test (CBAT) Master Guide & Practice Book',
-        author: 'Er. Alok Modi & Ex-Chief Loco Inspector R. K. Yadav',
+        author: 'Sandeep Kumar',
         format: 'combo',
         quantity: 1,
         unitPrice: 549,

@@ -71,20 +71,42 @@ export const OrderTrackingModal: React.FC = () => {
           
           {/* Quick Courier Status Card */}
           <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Payment</span>
+                <span className="font-bold text-emerald-400 text-xs flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {order.paymentStatus?.toUpperCase() || 'PAID'}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Shipping Status</span>
+                <span className="font-bold text-amber-400 text-xs">
+                  {order.shippingStatus?.replace(/_/g, ' ') || 'SHIPMENT CREATED'}
+                </span>
+              </div>
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase font-semibold">Courier Partner</span>
-                <span className="font-bold text-amber-400 text-sm">{order.courierPartner || 'Delhivery Express Direct'}</span>
+                <span className="font-bold text-white text-xs">{order.courierPartner || 'Delhivery Express'}</span>
               </div>
-              <div className="text-right">
-                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Tracking AWB #</span>
-                <span className="font-mono font-bold text-white text-xs">{order.trackingNumber || 'DEL-98421098234-IN'}</span>
+              <div className="text-right sm:text-left">
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">AWB Tracking #</span>
+                <span className="font-mono font-bold text-purple-300 text-xs">{order.awbCode || order.trackingNumber || 'Pending AWB'}</span>
               </div>
             </div>
 
             <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
-              <span>Estimated Delivery:</span>
-              <strong className="text-emerald-400 font-semibold">{order.estimatedDeliveryDate || 'Within 2-3 Business Days'}</strong>
+              <span>Estimated Delivery: <strong className="text-emerald-400 font-semibold">{order.estimatedDeliveryDate || 'Within 2-3 Business Days'}</strong></span>
+              {(order.shipmentTrackingUrl || order.awbCode) && (
+                <a
+                  href={order.shipmentTrackingUrl || `https://shiprocket.co/tracking/${order.awbCode}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-[11px] transition-colors"
+                >
+                  Live Courier Tracking →
+                </a>
+              )}
             </div>
           </div>
 

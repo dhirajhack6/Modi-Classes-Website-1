@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { CatalogView } from './components/catalog/CatalogView';
 import { MyLibrary } from './components/library/MyLibrary';
 import { OrdersView } from './components/orders/OrdersView';
-import { AdminDashboard } from './components/admin/AdminDashboard';
 import { BookDetailModal } from './components/catalog/BookDetailModal';
 import { PdfSampleViewer } from './components/catalog/PdfSampleViewer';
 import { CartDrawer } from './components/cart/CartDrawer';
@@ -14,6 +13,7 @@ import { InvoiceModal } from './components/orders/InvoiceModal';
 import { OrderTrackingModal } from './components/orders/OrderTrackingModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { UserProfileModal } from './components/auth/UserProfileModal';
+import { AdminApp } from './components/admin/AdminApp';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 const ToastContainer: React.FC = () => {
@@ -60,7 +60,7 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100/70 text-slate-900 font-sans selection:bg-indigo-600 selection:text-white">
-      {/* Navigation Header */}
+      {/* Navigation Header - Customer Only */}
       <Navbar />
 
       {/* Main Page Area */}
@@ -68,10 +68,9 @@ const MainAppContent: React.FC = () => {
         {activeView === 'catalog' && <CatalogView />}
         {activeView === 'my_library' && <MyLibrary />}
         {activeView === 'orders' && <OrdersView />}
-        {activeView === 'admin' && <AdminDashboard />}
       </main>
 
-      {/* Footer */}
+      {/* Footer - Customer Only */}
       <Footer />
 
       {/* Interactive Global Modals & Drawers */}
@@ -89,6 +88,23 @@ const MainAppContent: React.FC = () => {
 };
 
 export default function App() {
+  const [isAdminPath, setIsAdminPath] = useState(() => 
+    window.location.pathname.startsWith('/admin')
+  );
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setIsAdminPath(window.location.pathname.startsWith('/admin'));
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  if (isAdminPath) {
+    return <AdminApp />;
+  }
+
   return (
     <AppProvider>
       <MainAppContent />

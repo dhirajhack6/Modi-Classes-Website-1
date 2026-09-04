@@ -285,7 +285,7 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
 
                   {/* 3D THICK SPINE (Left face, perfectly joins front & back at x = 0, spanning z = +24px to -24px) */}
                   <div 
-                    className="absolute top-0 bottom-0 w-[48px] bg-gradient-to-b from-[#ea580c] via-white to-[#ea580c] border-y-2 border-orange-600 text-slate-950 flex flex-col justify-between items-center py-4 select-none shadow-md font-bold"
+                    className="absolute top-0 bottom-0 w-[48px] bg-gradient-to-b from-[#16a34a] via-white to-[#16a34a] border-y-2 border-green-700 text-slate-950 flex flex-col justify-between items-center py-4 select-none shadow-md font-bold"
                     style={{
                       left: '-24px',
                       transform: 'rotateY(-90deg)',
@@ -429,7 +429,7 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
                 {isAutoMoving ? (
                   <>
                     <Pause className="w-3.5 h-3.5 text-slate-600" />
-                    <span>Stop 3D Motion</span>
+                    <span></span>
                   </>
                 ) : (
                   <>

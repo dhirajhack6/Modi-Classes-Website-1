@@ -28,7 +28,6 @@ export const Navbar: React.FC = () => {
     openLoginModal,
     openSignupModal,
     setIsProfileModalOpen,
-    switchUserRole,
     cart,
     setIsCartDrawerOpen,
     orders,
@@ -290,38 +289,6 @@ export const Navbar: React.FC = () => {
                       >
                         <Package className="w-4 h-4 text-amber-600" />
                         <span>My Orders & Licenses</span>
-                      </button>
-
-                      <div className="border-t border-slate-100 my-1" />
-
-                      <div className="px-4 py-1 text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                        Role Switcher
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          switchUserRole('customer');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className={`w-full px-4 py-1.5 text-left flex items-center justify-between cursor-pointer ${
-                          currentUser.role === 'customer' ? 'text-blue-900 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>Aspirant View</span>
-                        {currentUser.role === 'customer' && <span className="text-[10px] text-[#2874f0]">● Active</span>}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          switchUserRole('admin');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className={`w-full px-4 py-1.5 text-left flex items-center justify-between cursor-pointer ${
-                          currentUser.role === 'admin' ? 'text-blue-900 font-bold bg-blue-50' : 'text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>Admin Dashboard</span>
-                        {currentUser.role === 'admin' && <span className="text-[10px] text-[#2874f0]">● Active</span>}
                       </button>
 
                       <div className="border-t border-slate-100 my-1" />

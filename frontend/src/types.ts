@@ -207,6 +207,15 @@ export interface Order {
   invoiceNumber: string;
   createdAt: string;
   notes?: string;
+
+  // Real Shipping & Shiprocket Fulfillment Fields
+  shippingStatus?: 'SHIPMENT_PENDING' | 'SHIPMENT_CREATED' | 'PICKED_UP' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED' | 'RTO';
+  shiprocketOrderId?: string;
+  shiprocketShipmentId?: string;
+  awbCode?: string;
+  shipmentTrackingUrl?: string;
+  paymentVerifiedAt?: string;
+  gatewayOrderId?: string;
 }
 
 export interface Coupon {

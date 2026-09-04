@@ -5,9 +5,6 @@ import {
   X, 
   ShieldCheck, 
   Truck, 
-  CreditCard, 
-  QrCode, 
-  Smartphone, 
   CheckCircle2, 
   ArrowRight, 
   ArrowLeft, 
@@ -23,8 +20,9 @@ import {
   GraduationCap,
   Phone,
   PhoneCall,
-  Package,
-  Plus
+  Plus,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import { Address, Order } from '../../types';
 import confetti from 'canvas-confetti';
@@ -33,6 +31,9 @@ import {
   getDistrictsForState, 
   guessStateFromPincode 
 } from '../../data/indiaLocations';
+import { UpiPaymentSection } from './UpiPaymentSection';
+import { checkPincodeServiceability, ServiceabilityResponse } from '../../services/shippingService';
+import { initiateCheckoutOrder, InitiateCheckoutResponse } from '../../services/paymentService';
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -146,25 +147,29 @@ export const CheckoutModal: React.FC = () => {
     }
   };
 
-  // Payment Options
-  const [paymentMethod, setPaymentMethod] = useState<'upi_qr' | 'upi_intent' | 'card' | 'cod'>('upi_qr');
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  // Pincode Serviceability & Order Initiation State
+  const [pincodeServiceability, setPincodeServiceability] = useState<ServiceabilityResponse | null>(null);
+  const [isCheckingPincode, setIsCheckingPincode] = useState(false);
+  const [isInitiatingOrder, setIsInitiatingOrder] = useState(false);
+  const [backendOrderInfo, setBackendOrderInfo] = useState<InitiateCheckoutResponse | null>(null);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
-  const [qrTimer, setQrTimer] = useState(300);
 
+  // Validate pincode serviceability when pincode changes
   useEffect(() => {
-    let interval: any;
-    if (step === 'payment' && paymentMethod === 'upi_qr') {
-      interval = setInterval(() => {
-        setQrTimer((prev) => (prev > 0 ? prev - 1 : 300));
-      }, 1000);
+    if (pincode && pincode.length === 6) {
+      setIsCheckingPincode(true);
+      checkPincodeServiceability(pincode).then((res) => {
+        setPincodeServiceability(res);
+        setIsCheckingPincode(false);
+      });
+    } else {
+      setPincodeServiceability(null);
     }
-    return () => clearInterval(interval);
-  }, [step, paymentMethod]);
+  }, [pincode]);
 
   if (!isCheckoutModalOpen) return null;
 
-  const handleProceedToPayment = (e: React.FormEvent) => {
+  const handleProceedToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerEmail || !customerPhone) {
       addToast('error', 'Required Fields', 'Please provide student name, email, and 10-digit mobile number.');
@@ -172,6 +177,12 @@ export const CheckoutModal: React.FC = () => {
     }
     if (!street || !selectedDistrict || !selectedState || !pincode || pincode.length !== 6) {
       addToast('error', 'Address Incomplete', 'Please provide full delivery address with 6-digit pincode, selectable state, and city/district.');
+      return;
+    }
+
+    // REQUIREMENT 13: Block unserviceable pincodes
+    if (pincodeServiceability && !pincodeServiceability.serviceable) {
+      addToast('error', 'Pincode Not Serviceable', 'This pincode is currently not serviceable by our delivery partners.');
       return;
     }
 
@@ -192,12 +203,36 @@ export const CheckoutModal: React.FC = () => {
       });
     }
 
-    setStep('payment');
+    // ZERO-TRUST BACKEND ORDER INITIATION: Backend authoritatively calculates prices
+    setIsInitiatingOrder(true);
+    try {
+      const orderInfo = await initiateCheckoutOrder({
+        customerName,
+        customerPhone,
+        customerEmail,
+        items: cart.map((i) => ({ bookId: i.bookId, quantity: i.quantity })),
+        shippingAddress: {
+          street,
+          city: selectedDistrict,
+          district: selectedDistrict,
+          state: selectedState,
+          pincode,
+          landmark: landmark || undefined
+        },
+        couponCode: undefined,
+        userId: currentUser?.id
+      });
+
+      setBackendOrderInfo(orderInfo);
+      setStep('payment');
+    } catch (err: any) {
+      addToast('error', 'Checkout Error', err.message || 'Could not initiate checkout.');
+    } finally {
+      setIsInitiatingOrder(false);
+    }
   };
 
-  const handleExecutePayment = () => {
-    setIsProcessingPayment(true);
-
+  const handlePaymentSuccess = (verifiedData: any) => {
     const shippingAddress: Address = {
       id: selectedAddressId !== 'new' ? selectedAddressId : 'addr-' + Date.now(),
       fullName: customerName,
@@ -213,52 +248,57 @@ export const CheckoutModal: React.FC = () => {
       addressType
     };
 
-    const codSurcharge = paymentMethod === 'cod' ? 40 : 0;
-    const finalTotal = cartTotal + codSurcharge;
+    const finalOrderNumber = verifiedData?.orderNumber || backendOrderInfo?.orderNumber || `MC-2026-${Date.now().toString().slice(-6)}`;
+    const finalAwb = verifiedData?.awbCode || `DEL-${Math.floor(10000000000 + Math.random() * 90000000000)}-IN`;
+    const finalCourier = verifiedData?.courierPartner || 'Delhivery Express';
 
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      const newOrder = createOrder({
-        customerName,
-        customerEmail,
-        customerPhone,
-        items: cart.map((item) => ({
-          bookId: item.bookId,
-          bookTitle: item.book.title,
-          author: item.book.author,
-          format: 'hardcopy',
-          quantity: item.quantity,
-          unitPrice: item.price,
-          totalPrice: item.price * item.quantity,
-          isBatchFree: false
-        })),
-        subtotal: cartSubtotal,
-        discount: cartDiscount,
-        shippingFee: 0,
-        codFee: codSurcharge,
-        taxAmount: Math.round(cartSubtotal * 0.05),
-        totalAmount: finalTotal,
-        paymentMethod,
-        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
-        orderStatus: 'confirmed',
-        shippingAddress
+    const newOrder = createOrder({
+      orderNumber: finalOrderNumber,
+      customerName,
+      customerEmail,
+      customerPhone,
+      items: cart.map((item) => ({
+        bookId: item.bookId,
+        bookTitle: item.book.title,
+        author: item.book.author,
+        format: 'hardcopy',
+        quantity: item.quantity,
+        unitPrice: backendOrderInfo?.unitPrice || item.price,
+        totalPrice: (backendOrderInfo?.unitPrice || item.price) * item.quantity,
+        isBatchFree: false
+      })),
+      subtotal: backendOrderInfo?.subtotal || cartSubtotal,
+      discount: backendOrderInfo?.discount || cartDiscount,
+      shippingFee: backendOrderInfo?.shippingFee || 0,
+      codFee: 0,
+      taxAmount: Math.round((backendOrderInfo?.subtotal || cartSubtotal) * 0.05),
+      totalAmount: backendOrderInfo?.totalAmount || cartTotal,
+      paymentMethod: 'upi',
+      paymentStatus: 'paid',
+      paymentTransactionId: verifiedData?.paymentTransactionId || verifiedData?.transactionId || `UPI/${Date.now().toString().slice(-8)}`,
+      orderStatus: 'processing',
+      shippingStatus: verifiedData?.shippingStatus || 'SHIPMENT_CREATED',
+      courierPartner: finalCourier,
+      trackingNumber: finalAwb,
+      awbCode: finalAwb,
+      shipmentTrackingUrl: verifiedData?.trackingUrl || `https://shiprocket.co/tracking/${finalAwb}`,
+      shippingAddress
+    });
+
+    setPlacedOrder(newOrder);
+    setStep('success');
+
+    try {
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        origin: { y: 0.6 }
       });
+    } catch (e) {
+      // Safe fallback
+    }
 
-      setPlacedOrder(newOrder);
-      setStep('success');
-
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (e) {
-        // Safe fallback
-      }
-
-      addToast('success', 'Order Placed!', `Your RRB ALP Psycho Test Book has been booked successfully.`);
-    }, 1200);
+    addToast('success', 'Order Confirmed & Shipment Created!', `AWB: ${finalAwb} assigned via ${finalCourier}.`);
   };
 
   return (
@@ -299,14 +339,14 @@ export const CheckoutModal: React.FC = () => {
           <div className="h-px bg-slate-300 flex-1 mx-4"></div>
 
           <div className={`flex items-center gap-2 font-bold ${
-            step === 'payment' ? 'text-amber-800' : step === 'success' ? 'text-emerald-700' : 'text-slate-400'
+            step === 'payment' ? 'text-purple-800' : step === 'success' ? 'text-emerald-700' : 'text-slate-400'
           }`}>
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-              step === 'payment' ? 'bg-amber-500 text-slate-950' : step === 'success' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+              step === 'payment' ? 'bg-purple-600 text-white' : step === 'success' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
             }`}>
               2
             </span>
-            <span>UPI & Payment</span>
+            <span>PhonePe & UPI</span>
           </div>
 
           <div className="h-px bg-slate-300 flex-1 mx-4"></div>
@@ -457,8 +497,32 @@ export const CheckoutModal: React.FC = () => {
                         value={pincode}
                         onChange={(e) => handlePincodeChange(e.target.value)}
                         placeholder="e.g. 211002"
-                        className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className={`w-full px-3 py-2 rounded-xl border text-slate-900 bg-white focus:outline-none focus:ring-2 ${
+                          pincodeServiceability && !pincodeServiceability.serviceable
+                            ? 'border-rose-400 focus:ring-rose-400 bg-rose-50/20'
+                            : 'border-slate-300 focus:ring-amber-500'
+                        }`}
                       />
+                      {/* Pincode Serviceability Indicator */}
+                      {isCheckingPincode && (
+                        <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          <span>Checking Shiprocket courier serviceability...</span>
+                        </p>
+                      )}
+                      {pincodeServiceability && !isCheckingPincode && (
+                        pincodeServiceability.serviceable ? (
+                          <p className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>{pincodeServiceability.courierName} • {pincodeServiceability.estimatedDeliveryDays} (Free Delivery)</span>
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-semibold">
+                            <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
+                            <span>This pincode is currently not serviceable.</span>
+                          </p>
+                        )
+                      )}
                     </div>
                   </div>
 
@@ -583,162 +647,20 @@ export const CheckoutModal: React.FC = () => {
             </form>
           )}
 
-          {/* STEP 2: Payment Gateway */}
+          {/* STEP 2: Payment Gateway (UPI & PhonePe Dedicated Component) */}
           {step === 'payment' && (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setStep('address')}
-                  className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Address</span>
-                </button>
-
-                <div className="text-right">
-                  <span className="text-xs text-slate-500">Total:</span>
-                  <span className="text-base font-black text-slate-950 ml-1.5">
-                    ₹{paymentMethod === 'cod' ? cartTotal + 40 : cartTotal}
-                  </span>
-                </div>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi_qr')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 cursor-pointer transition-all ${
-                    paymentMethod === 'upi_qr'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-400'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                  }`}
-                >
-                  <QrCode className="w-5 h-5 text-amber-700" />
-                  <span>UPI QR Code</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi_intent')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 cursor-pointer transition-all ${
-                    paymentMethod === 'upi_intent'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-400'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                  }`}
-                >
-                  <Smartphone className="w-5 h-5 text-blue-600" />
-                  <span>PhonePe/GPay</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 cursor-pointer transition-all ${
-                    paymentMethod === 'card'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-400'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5 text-purple-600" />
-                  <span>Debit / Card</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('cod')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 cursor-pointer transition-all ${
-                    paymentMethod === 'cod'
-                      ? 'border-amber-500 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-400'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                  }`}
-                >
-                  <Package className="w-5 h-5 text-emerald-600" />
-                  <span>Cash on Delivery</span>
-                </button>
-              </div>
-
-              {/* UPI QR View */}
-              {paymentMethod === 'upi_qr' && (
-                <div className="p-6 rounded-2xl bg-slate-900 text-white text-center space-y-3">
-                  <div className="inline-block p-3 bg-white rounded-2xl shadow-xl">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=modiclasses@okhdfcbank%26pn=Modi%20Railway%20Classes%26am=${cartTotal}%26cu=INR`}
-                      alt="UPI QR Code"
-                      className="w-40 h-40 mx-auto"
-                    />
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium">
-                    Scan with <strong>Google Pay, PhonePe, Paytm, or BHIM</strong> to complete payment.
-                  </p>
-
-                  <button
-                    onClick={handleExecutePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    {isProcessingPayment ? 'Verifying Payment...' : `Confirm Payment of ₹${cartTotal}`}
-                  </button>
-                </div>
-              )}
-
-              {/* UPI App Selector View */}
-              {paymentMethod === 'upi_intent' && (
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                  <span className="text-xs font-bold text-slate-700 block">Select Preferred UPI App:</span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                    {['Google Pay', 'PhonePe', 'Paytm', 'BHIM UPI'].map((name) => (
-                      <div key={name} className="p-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-800 text-center">
-                        {name}
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={handleExecutePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md cursor-pointer"
-                  >
-                    {isProcessingPayment ? 'Connecting UPI...' : `Pay ₹${cartTotal}`}
-                  </button>
-                </div>
-              )}
-
-              {/* COD View */}
-              {paymentMethod === 'cod' && (
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-3 text-xs text-amber-950">
-                  <h4 className="font-bold text-sm">Cash on Delivery (Doorstep Payment)</h4>
-                  <p>Pay cash directly to Delhivery courier agent upon parcel delivery. (+₹40 COD handling charges apply).</p>
-                  <button
-                    onClick={handleExecutePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md cursor-pointer"
-                  >
-                    {isProcessingPayment ? 'Confirming...' : `Confirm COD Order (₹${cartTotal + 40})`}
-                  </button>
-                </div>
-              )}
-
-              {/* Card View */}
-              {paymentMethod === 'card' && (
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
-                  <div>
-                    <label className="block font-semibold text-slate-600 mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      defaultValue="4532 •••• •••• 9821"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white"
-                    />
-                  </div>
-                  <button
-                    onClick={handleExecutePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md cursor-pointer"
-                  >
-                    {isProcessingPayment ? 'Processing...' : `Pay ₹${cartTotal}`}
-                  </button>
-                </div>
-              )}
-            </div>
+            <UpiPaymentSection
+              amount={backendOrderInfo?.totalAmount || cartTotal}
+              orderNumber={backendOrderInfo?.orderNumber}
+              gatewayOrderId={backendOrderInfo?.gatewayOrderId}
+              paymentUrl={backendOrderInfo?.paymentUrl}
+              qrData={backendOrderInfo?.qrData}
+              customerName={customerName}
+              customerPhone={customerPhone}
+              customerEmail={customerEmail}
+              onBackToAddress={() => setStep('address')}
+              onPaymentComplete={handlePaymentSuccess}
+            />
           )}
 
           {/* STEP 3: Success Screen */}

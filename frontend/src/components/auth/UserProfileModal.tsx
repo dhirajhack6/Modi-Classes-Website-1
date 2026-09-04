@@ -33,13 +33,10 @@ export const UserProfileModal: React.FC = () => {
     logout, 
     setActiveView, 
     addAddress, 
-    setDefaultAddress,
-    switchUserRole,
-    usersList,
-    quickLoginAs
+    setDefaultAddress
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'switch'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'addresses'>('profile');
   const [showAddAddr, setShowAddAddr] = useState(false);
 
   // Address form fields
@@ -173,17 +170,6 @@ export const UserProfileModal: React.FC = () => {
           >
             <MapPin className="w-3.5 h-3.5" />
             <span>Saved Addresses ({(currentUser.savedAddresses || []).length})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('switch')}
-            className={`py-3 px-4 border-b-2 transition-colors flex items-center gap-1.5 ${
-              activeTab === 'switch'
-                ? 'border-[#2874f0] text-[#2874f0]'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Switch Role / User</span>
           </button>
         </div>
 
@@ -502,43 +488,6 @@ export const UserProfileModal: React.FC = () => {
                         className="text-xs font-semibold text-[#2874f0] hover:underline cursor-pointer ml-3 shrink-0"
                       >
                         Set Default
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'switch' && (
-            <div className="space-y-3">
-              <p className="text-xs text-slate-500">
-                Switch instantly between roles or login as a different registered test user:
-              </p>
-              
-              <div className="space-y-2">
-                {usersList.map((u) => (
-                  <div
-                    key={u.id}
-                    className={`p-3 rounded-lg border text-xs flex items-center justify-between transition-colors ${
-                      u.id === currentUser.id ? 'border-[#2874f0] bg-blue-50/50' : 'border-slate-200 hover:border-slate-300 bg-white'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-bold text-slate-900">{u.name}</p>
-                      <p className="text-[11px] text-slate-500">{u.email} • <span className="capitalize font-semibold text-slate-700">{u.role}</span></p>
-                    </div>
-                    {u.id === currentUser.id ? (
-                      <span className="inline-flex items-center gap-1 text-[#2874f0] font-semibold text-xs">
-                        <Check className="w-4 h-4" /> Active
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => quickLoginAs(u.id)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-blue-600 hover:text-white rounded text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
-                      >
-                        Switch To
                       </button>
                     )}
                   </div>

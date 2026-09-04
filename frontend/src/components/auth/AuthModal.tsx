@@ -37,7 +37,7 @@ export const AuthModal: React.FC = () => {
   // OTP stage state
   const [otpValue, setOtpValue] = useState(['', '', '', '']);
   const [otpSentTo, setOtpSentTo] = useState('');
-  const [generatedDemoOtp, setGeneratedDemoOtp] = useState('');
+ 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [pendingSignupData, setPendingSignupData] = useState<{ name: string; phone: string; email: string } | null>(null);
@@ -70,13 +70,13 @@ export const AuthModal: React.FC = () => {
       setIsLoading(false);
 
       if (response.ok && data.success) {
-        setOtpSentTo(identifier.trim());
-        setOtpPurpose('login');
-        setGeneratedDemoOtp(data.debugOtp || '');
-        setAuthModalMode('otp');
-      } else {
-        setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
-      }
+  setOtpSentTo(identifier.trim());
+  setOtpPurpose('login');
+  setOtpValue(['', '', '', '']);
+  setAuthModalMode('otp');
+} else {
+  setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
+}
     } catch (err) {
       setIsLoading(false);
       setErrorMessage('Network error. Failed to send OTP.');
@@ -141,25 +141,25 @@ export const AuthModal: React.FC = () => {
     }
 
     setIsLoading(true);
-    const targetPhone = signupPhone.trim();
-    try {
+    const targetEmail = signupEmail.trim().toLowerCase();
+       try{
       const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: targetPhone })
-      });
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ identifier: targetEmail })
+         });
       const data = await response.json();
       setIsLoading(false);
 
       if (response.ok && data.success) {
         setPendingSignupData({ name: fullName, phone: signupPhone, email: signupEmail });
-        setOtpSentTo(targetPhone);
+        setOtpSentTo(targetEmail);
         setOtpPurpose('signup');
-        setGeneratedDemoOtp(data.debugOtp || '');
-        setAuthModalMode('otp');
+         setOtpValue(['', '', '', '']);
+          setAuthModalMode('otp');
       } else {
         setErrorMessage(data.error || 'Failed to send verification OTP.');
-      }
+    }
     } catch (err) {
       setIsLoading(false);
       setErrorMessage('Network error. Failed to send verification OTP.');
@@ -314,26 +314,10 @@ export const AuthModal: React.FC = () => {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-slate-400 font-medium">Or Quick Switch Demo User</span>
-                </div>
+               
               </div>
 
-              {/* Demo 1-Click Login Shortcuts */}
-              <div className="grid grid-cols-2 gap-2">
-                {usersList.slice(0, 2).map((u) => (
-                  <button
-                    key={u.id}
-                    type="button"
-                    onClick={() => quickLoginAs(u.id)}
-                    className="p-2 text-left rounded-lg border border-slate-200 hover:border-[#2874f0] hover:bg-blue-50/50 transition-colors text-xs"
-                  >
-                    <p className="font-semibold text-slate-800 truncate">{u.name}</p>
-                    <p className="text-[11px] text-slate-500 capitalize">{u.role}</p>
-                  </button>
-                ))}
-              </div>
-
+             
               <div className="pt-2 text-center">
                 <button
                   type="button"
@@ -449,19 +433,8 @@ export const AuthModal: React.FC = () => {
                   </button>
                 </p>
 
-                {/* Auto-helper banner for demo instant test */}
-                {generatedDemoOtp && (
-                  <div className="p-2.5 mb-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center justify-between">
-                    <span>Demo OTP Code: <strong className="text-amber-900 tracking-wider text-sm">{generatedDemoOtp}</strong></span>
-                    <button
-                      type="button"
-                      onClick={() => setOtpValue(generatedDemoOtp.split(''))}
-                      className="text-xs font-semibold text-[#2874f0] underline hover:text-blue-700"
-                    >
-                      Auto-Fill
-                    </button>
-                  </div>
-                )}
+                
+               
 
                 <div className="flex items-center justify-center gap-3">
                   {[0, 1, 2, 3].map((idx) => (
@@ -513,7 +486,6 @@ export const AuthModal: React.FC = () => {
                       setIsLoading(false);
                       if (response.ok && data.success) {
                         setOtpValue(['', '', '', '']);
-                        setGeneratedDemoOtp(data.debugOtp || '');
                       } else {
                         setErrorMessage(data.error || 'Failed to resend OTP.');
                       }

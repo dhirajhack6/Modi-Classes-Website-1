@@ -32,8 +32,8 @@ export interface ToastMessage {
 
 interface AppContextType {
   // Navigation & View
-  activeView: 'catalog' | 'my_library' | 'orders' | 'admin';
-  setActiveView: (view: 'catalog' | 'my_library' | 'orders' | 'admin') => void;
+  activeView: 'catalog' | 'my_library' | 'orders';
+  setActiveView: (view: 'catalog' | 'my_library' | 'orders') => void;
   
   // User & Auth
   currentUser: User | null;
@@ -45,7 +45,6 @@ interface AppContextType {
   logout: () => void;
   quickLoginAs: (userId: string) => void;
   updateUserBatch: (userId: string, batches: string[]) => void;
-  switchUserRole: (role: 'customer' | 'admin' | 'staff' | 'delivery_manager') => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
   setDefaultAddress: (addressId: string) => void;
   toggleBatchEnrollment: (batchName: string) => void;
@@ -172,7 +171,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Navigation
-  const [activeView, setActiveView] = useState<'catalog' | 'my_library' | 'orders' | 'admin'>('catalog');
+  const [activeView, setActiveView] = useState<'catalog' | 'my_library' | 'orders'>('catalog');
   
   // User
   const [currentUser, setCurrentUser] = useState<User>(() => {
@@ -544,11 +543,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  const switchUserRole = (role: 'customer' | 'admin' | 'staff' | 'delivery_manager') => {
-    setCurrentUser((prev) => (prev ? { ...prev, role } : null));
-    addToast('info', 'Role Switched', `Switched active role to: ${role.toUpperCase()}`);
   };
 
   const addAddress = (addressData: Omit<Address, 'id'>) => {
@@ -1374,7 +1368,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         logout,
         quickLoginAs,
         updateUserBatch,
-        switchUserRole,
         addAddress,
         setDefaultAddress,
         toggleBatchEnrollment,
