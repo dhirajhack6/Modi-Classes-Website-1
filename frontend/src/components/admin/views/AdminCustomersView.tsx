@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminCustomerSummary } from '../adminTypes';
 import { Order } from '../../../types';
+import { getApiUrl } from '../../../services/api';
 import { 
   Search, 
   Users, 
@@ -34,8 +35,8 @@ export const AdminCustomersView: React.FC = () => {
 
     try {
       const url = searchQuery.trim() 
-        ? `/api/admin/customers?search=${encodeURIComponent(searchQuery.trim())}`
-        : '/api/admin/customers';
+        ? getApiUrl(`/api/admin/customers?search=${encodeURIComponent(searchQuery.trim())}`)
+        : getApiUrl('/api/admin/customers');
 
       const res = await fetch(url, { headers, credentials: 'include' });
       if (res.ok) {
@@ -68,7 +69,7 @@ export const AdminCustomersView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/api/admin/customers/${id}`, { headers, credentials: 'include' });
+      const res = await fetch(getApiUrl(`/api/admin/customers/${id}`), { headers, credentials: 'include' });
       if (res.ok) {
         const json = await res.json();
         setCustomerDetail(json);

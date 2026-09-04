@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../../../services/api';
 import { AdminDashboardData } from '../adminTypes';
 import { Order } from '../../../types';
 import { 
@@ -40,7 +41,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/admin/dashboard', {
+      const res = await fetch(getApiUrl('/api/admin/dashboard'), {
         headers,
         credentials: 'include'
       });

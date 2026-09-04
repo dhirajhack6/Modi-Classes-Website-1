@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Book } from '../../../types';
 import { PriceHistoryRecord } from '../adminTypes';
+import { getApiUrl } from '../../../services/api';
 import { 
   BookOpen, 
   IndianRupee, 
@@ -47,8 +48,8 @@ export const AdminBookView: React.FC = () => {
 
     try {
       const [bookRes, histRes] = await Promise.all([
-        fetch('/api/admin/book', { headers, credentials: 'include' }),
-        fetch('/api/admin/book/price-history', { headers, credentials: 'include' })
+        fetch(getApiUrl('/api/admin/book'), { headers, credentials: 'include' }),
+        fetch(getApiUrl('/api/admin/book/price-history'), { headers, credentials: 'include' })
       ]);
 
       if (bookRes.ok) {
@@ -123,7 +124,7 @@ export const AdminBookView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/admin/book', {
+      const res = await fetch(getApiUrl('/api/admin/book'), {
         method: 'PATCH',
         headers,
         credentials: 'include',
@@ -145,7 +146,7 @@ export const AdminBookView: React.FC = () => {
         setBook(updated);
         setSuccessMessage('Book price & details updated successfully.');
         // Refresh audit history
-        const histRes = await fetch('/api/admin/book/price-history', { headers, credentials: 'include' });
+        const histRes = await fetch(getApiUrl('/api/admin/book/price-history'), { headers, credentials: 'include' });
         if (histRes.ok) {
           setPriceHistory(await histRes.json());
         }

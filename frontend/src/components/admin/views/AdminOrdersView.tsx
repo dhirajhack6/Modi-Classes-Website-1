@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus } from '../../../types';
+import { getApiUrl } from '../../../services/api';
 import { 
   Search, 
   Filter, 
@@ -62,7 +63,7 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
       if (selectedStatusFilter !== 'all') params.append('orderStatus', selectedStatusFilter);
       if (selectedPaymentFilter !== 'all') params.append('paymentStatus', selectedPaymentFilter);
 
-      const res = await fetch(`/api/admin/orders?${params.toString()}`, {
+      const res = await fetch(getApiUrl(`/api/admin/orders?${params.toString()}`), {
         headers,
         credentials: 'include'
       });
@@ -119,7 +120,7 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/api/admin/orders/${selectedOrder.id}/status`, {
+      const res = await fetch(getApiUrl(`/api/admin/orders/${selectedOrder.id}/status`), {
         method: 'PATCH',
         headers,
         credentials: 'include',

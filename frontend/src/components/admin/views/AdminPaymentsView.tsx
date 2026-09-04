@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdminPaymentRecord } from '../adminTypes';
+import { getApiUrl } from '../../../services/api';
 import { 
   CreditCard, 
   Search, 
@@ -29,7 +30,7 @@ export const AdminPaymentsView: React.FC = () => {
       const params = new URLSearchParams();
       if (selectedFilter !== 'all') params.append('status', selectedFilter);
 
-      const res = await fetch(`/api/admin/payments?${params.toString()}`, {
+      const res = await fetch(getApiUrl(`/api/admin/payments?${params.toString()}`), {
         headers,
         credentials: 'include'
       });

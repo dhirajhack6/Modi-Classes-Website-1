@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { getApiUrl } from '../../../services/api';
 import { 
   Settings, 
   User, 
@@ -51,7 +52,7 @@ export const AdminSettingsView: React.FC = () => {
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
       try {
-        const res = await fetch('/api/admin/settings', { headers, credentials: 'include' });
+        const res = await fetch(getApiUrl('/api/admin/settings'), { headers, credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           const s = data.settings || data;
@@ -84,7 +85,7 @@ export const AdminSettingsView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await fetch(getApiUrl('/api/admin/settings'), {
         method: 'PATCH',
         headers,
         credentials: 'include',
@@ -138,7 +139,7 @@ export const AdminSettingsView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await fetch(getApiUrl('/api/admin/settings'), {
         method: 'PATCH',
         headers,
         credentials: 'include',

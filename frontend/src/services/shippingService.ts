@@ -1,3 +1,5 @@
+import { getApiUrl } from './api';
+
 export interface ServiceabilityResponse {
   serviceable: boolean;
   courierName?: string;
@@ -32,7 +34,7 @@ export async function checkPincodeServiceability(pincode: string): Promise<Servi
   }
 
   try {
-    const res = await fetch(`/api/shipping/serviceability?pincode=${clean}`);
+    const res = await fetch(getApiUrl(`/api/shipping/serviceability?pincode=${clean}`));
     if (!res.ok) throw new Error('Serviceability check error');
     return await res.json();
   } catch (err: any) {
@@ -52,7 +54,7 @@ export async function checkPincodeServiceability(pincode: string): Promise<Servi
  */
 export async function fetchOrderTracking(orderId: string): Promise<TrackingResponse | null> {
   try {
-    const res = await fetch(`/api/shipping/track/${encodeURIComponent(orderId)}`);
+    const res = await fetch(getApiUrl(`/api/shipping/track/${encodeURIComponent(orderId)}`));
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -70,7 +72,7 @@ export async function retryAdminShipment(orderId: string): Promise<{ success: bo
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   try {
-    const res = await fetch(`/api/shipping/admin/${encodeURIComponent(orderId)}/retry`, {
+    const res = await fetch(getApiUrl(`/api/shipping/admin/${encodeURIComponent(orderId)}/retry`), {
       method: 'POST',
       headers,
       credentials: 'include'

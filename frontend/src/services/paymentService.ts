@@ -1,3 +1,5 @@
+import { getApiUrl } from './api';
+
 export interface PaymentConfig {
   success: boolean;
   provider: string;
@@ -28,16 +30,35 @@ export interface InitiateCheckoutResponse {
   success: boolean;
   orderId: string;
   orderNumber: string;
-  unitPrice: number;
-  subtotal: number;
-  discount: number;
-  shippingFee: number;
-  totalAmount: number;
   gatewayOrderId: string;
+  unitPrice?: number;
+  subtotal?: number;
+  discount?: number;
+  shippingFee?: number;
+  totalAmount?: number;
+  amount?: number;
+  currency?: string;
   paymentUrl?: string;
   qrData?: string;
-  provider: string;
-  message: string;
+  provider?: string;
+  paymentMethods?: {
+    upiIntent?: {
+      intentUrl: string;
+    };
+    upiQr?: {
+      qrData: string;
+      qrImageUrl?: string;
+    };
+    gatewayRedirect?: {
+      redirectUrl: string;
+    };
+  };
+  expiresAt?: string;
+  merchantVpa?: string;
+  merchantName?: string;
+  appliedDiscount?: number;
+  finalAmount?: number;
+  message?: string;
   error?: string;
 }
 
@@ -45,19 +66,24 @@ export interface VerifyPaymentRequest {
   orderId?: string;
   orderNumber?: string;
   gatewayOrderId?: string;
-  paymentId: string;
+  paymentId?: string;
   signature?: string;
+  clientProvidedStatus?: string;
 }
 
 export interface VerifyPaymentResponse {
-  verified: boolean;
-  status: 'PAID' | 'FAILED' | 'PENDING';
+  success?: boolean;
+  verified?: boolean;
+  status?: 'PAID' | 'FAILED' | 'PENDING';
+  paymentStatus?: 'PAID' | 'FAILED' | 'PENDING';
   alreadyPaid?: boolean;
+  orderId?: string;
   orderNumber?: string;
   paymentTransactionId?: string;
-  shippingStatus?: string;
+  transactionId?: string;
   awbCode?: string;
   courierPartner?: string;
+  shippingStatus?: string;
   trackingUrl?: string;
   order?: any;
   message?: string;
@@ -69,7 +95,7 @@ export interface VerifyPaymentResponse {
  */
 export async function getPaymentConfig(): Promise<PaymentConfig> {
   try {
-    const res = await fetch('/api/payment/config');
+    const res = await fetch(getApiUrl('/api/payment/config'));
     if (!res.ok) throw new Error('Failed to fetch payment config');
     return await res.json();
   } catch (e) {
@@ -86,7 +112,7 @@ export async function getPaymentConfig(): Promise<PaymentConfig> {
  * Initiate checkout on backend (Zero-Trust: Backend determines exact DB price)
  */
 export async function initiateCheckoutOrder(payload: InitiateCheckoutRequest): Promise<InitiateCheckoutResponse> {
-  const res = await fetch('/api/payment/create-order', {
+  const res = await fetch(getApiUrl('/api/payment/create-order'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -131,7 +157,7 @@ export async function initiatePayment(params: {
  * Zero-trust server-side payment verification
  */
 export async function verifyPayment(payload: VerifyPaymentRequest): Promise<VerifyPaymentResponse> {
-  const res = await fetch('/api/payment/verify', {
+  const res = await fetch(getApiUrl('/api/payment/verify'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)

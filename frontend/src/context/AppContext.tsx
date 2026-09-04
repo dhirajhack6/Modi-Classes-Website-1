@@ -22,6 +22,7 @@ import {
   INITIAL_USERS_LIST,
   INITIAL_BULK_INQUIRIES 
 } from '../data/initialData';
+import { getApiUrl } from '../services/api';
 
 export interface ToastMessage {
   id: string;
@@ -387,7 +388,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addToast('success', `Welcome to Modi Classes, ${newUser.name}!`, 'Account created & logged in successfully.');
     
     // POST to backend
-    fetch('/api/users', {
+    fetch(getApiUrl('/api/users'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser)
@@ -424,7 +425,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addToast('success', 'Account Created Successfully!', `Welcome to Modi Railway Classes, ${newUser.name}`);
 
     // POST to backend
-    fetch('/api/users', {
+    fetch(getApiUrl('/api/users'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser)
@@ -458,37 +459,37 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const booksRes = await fetch('/api/books');
+        const booksRes = await fetch(getApiUrl('/api/books'));
         if (booksRes.ok) {
           const booksData = await booksRes.json();
           setBooks(booksData);
         }
         
-        const ordersRes = await fetch('/api/orders');
+        const ordersRes = await fetch(getApiUrl('/api/orders'));
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           setOrders(ordersData);
         }
 
-        const reviewsRes = await fetch('/api/reviews');
+        const reviewsRes = await fetch(getApiUrl('/api/reviews'));
         if (reviewsRes.ok) {
           const reviewsData = await reviewsRes.json();
           setReviews(reviewsData);
         }
 
-        const couponsRes = await fetch('/api/coupons');
+        const couponsRes = await fetch(getApiUrl('/api/coupons'));
         if (couponsRes.ok) {
           const couponsData = await couponsRes.json();
           setCoupons(couponsData);
         }
 
-        const usersRes = await fetch('/api/users');
+        const usersRes = await fetch(getApiUrl('/api/users'));
         if (usersRes.ok) {
           const usersData = await usersRes.json();
           setUsersList(usersData);
         }
 
-        const bulkRes = await fetch('/api/bulk');
+        const bulkRes = await fetch(getApiUrl('/api/bulk'));
         if (bulkRes.ok) {
           const bulkData = await bulkRes.json();
           setBulkInquiries(bulkData);
@@ -557,7 +558,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
       setCurrentUser(updatedUser);
       // PUT to backend
-      fetch(`/api/users/${currentUser.id}`, {
+      fetch(getApiUrl(`/api/users/${currentUser.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser)
@@ -576,7 +577,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }))
       };
       setCurrentUser(updatedUser);
-      fetch(`/api/users/${currentUser.id}`, {
+      fetch(getApiUrl(`/api/users/${currentUser.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser)
@@ -593,7 +594,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         : [...enrolled, batchName];
       const updatedUser = { ...currentUser, enrolledBatches: updated };
       setCurrentUser(updatedUser);
-      fetch(`/api/users/${currentUser.id}`, {
+      fetch(getApiUrl(`/api/users/${currentUser.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser)
@@ -957,7 +958,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     clearCart();
 
     // POST to backend
-    fetch('/api/orders', {
+    fetch(getApiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newOrder)
@@ -1001,7 +1002,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     if (updatedOrder) {
-      fetch(`/api/orders/${orderId}`, {
+      fetch(getApiUrl(`/api/orders/${orderId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1021,7 +1022,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, orderStatus: 'cancelled', notes: reason } : ord))
     );
-    fetch(`/api/orders/${orderId}`, {
+    fetch(getApiUrl(`/api/orders/${orderId}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderStatus: 'cancelled', notes: reason })
@@ -1034,7 +1035,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, notes: notesText } : ord))
     );
-    fetch(`/api/orders/${orderId}`, {
+    fetch(getApiUrl(`/api/orders/${orderId}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes: notesText })
@@ -1096,7 +1097,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     // POST to backend
-    fetch('/api/reviews', {
+    fetch(getApiUrl('/api/reviews'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newReview)
@@ -1104,7 +1105,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     .then(async (res) => {
       if (res.ok) {
         // Refresh books list to ensure accurate sync of computed rating from DB
-        const booksRes = await fetch('/api/books');
+        const booksRes = await fetch(getApiUrl('/api/books'));
         if (booksRes.ok) {
           setBooks(await booksRes.json());
         }
@@ -1125,7 +1126,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBulkInquiries((prev) => [newInquiry, ...prev]);
 
     // POST to backend
-    fetch('/api/bulk', {
+    fetch(getApiUrl('/api/bulk'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newInquiry)
@@ -1140,7 +1141,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     // POST/PUT to backend
-    fetch('/api/bulk', {
+    fetch(getApiUrl('/api/bulk'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status })
@@ -1160,7 +1161,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBooks((prev) => [newBook, ...prev]);
 
     // POST to backend
-    fetch('/api/books', {
+    fetch(getApiUrl('/api/books'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newBook)
@@ -1175,7 +1176,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     // PUT to backend
-    fetch(`/api/books/${id}`, {
+    fetch(getApiUrl(`/api/books/${id}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -1188,7 +1189,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBooks((prev) => prev.filter((b) => b.id !== id));
 
     // DELETE to backend
-    fetch(`/api/books/${id}`, {
+    fetch(getApiUrl(`/api/books/${id}`), {
       method: 'DELETE'
     }).catch(err => console.error('Error deleting book from DB:', err));
 
@@ -1277,7 +1278,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const targetUser = usersList.find((u) => u.id === userId);
     if (targetUser) {
       const updatedUser = { ...targetUser, enrolledBatches: batches };
-      fetch(`/api/users/${userId}`, {
+      fetch(getApiUrl(`/api/users/${userId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser)
@@ -1293,7 +1294,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     // PUT to backend
-    fetch(`/api/books/${bookId}`, {
+    fetch(getApiUrl(`/api/books/${bookId}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ stockQuantity: Math.max(0, newStock) })
@@ -1322,7 +1323,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCoupons((prev) => [newCoupon, ...prev]);
 
     // POST to backend
-    fetch('/api/coupons', {
+    fetch(getApiUrl('/api/coupons'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newCoupon)
@@ -1344,7 +1345,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     if (updatedCoupon) {
-      fetch('/api/coupons', {
+      fetch(getApiUrl('/api/coupons'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedCoupon)

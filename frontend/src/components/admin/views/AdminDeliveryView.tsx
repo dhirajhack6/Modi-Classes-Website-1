@@ -16,6 +16,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { retryAdminShipment } from '../../../services/shippingService';
+import { getApiUrl } from '../../../services/api';
 
 export const AdminDeliveryView: React.FC = () => {
   const [deliveries, setDeliveries] = useState<AdminDeliveryRecord[]>([]);
@@ -40,7 +41,7 @@ export const AdminDeliveryView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch('/api/admin/delivery', { headers, credentials: 'include' });
+      const res = await fetch(getApiUrl('/api/admin/delivery'), { headers, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setDeliveries(data);
@@ -90,7 +91,7 @@ export const AdminDeliveryView: React.FC = () => {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`/api/admin/delivery/${editingDelivery.id}`, {
+      const res = await fetch(getApiUrl(`/api/admin/delivery/${editingDelivery.id}`), {
         method: 'PATCH',
         headers,
         credentials: 'include',

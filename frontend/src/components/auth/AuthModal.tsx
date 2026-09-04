@@ -15,6 +15,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getApiUrl } from '../../services/api';
 
 export const AuthModal: React.FC = () => {
   const { 
@@ -61,7 +62,7 @@ export const AuthModal: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/send-otp', {
+      const response = await fetch(getApiUrl('/api/auth/send-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim() })
@@ -93,7 +94,7 @@ export const AuthModal: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/verify-otp', {
+      const response = await fetch(getApiUrl('/api/auth/verify-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier: otpSentTo, otp: entered })
@@ -143,7 +144,7 @@ export const AuthModal: React.FC = () => {
     setIsLoading(true);
     const targetEmail = signupEmail.trim().toLowerCase();
        try{
-      const response = await fetch('/api/auth/send-otp', {
+      const response = await fetch(getApiUrl('/api/auth/send-otp'), {
         method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ identifier: targetEmail })
@@ -477,7 +478,7 @@ export const AuthModal: React.FC = () => {
                     setErrorMessage('');
                     setIsLoading(true);
                     try {
-                      const response = await fetch('/api/auth/send-otp', {
+                      const response = await fetch(getApiUrl('/api/auth/send-otp'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ identifier: otpSentTo })

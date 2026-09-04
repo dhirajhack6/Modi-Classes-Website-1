@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AdminUser } from '../adminTypes';
+import { getApiUrl } from '../../../services/api';
 
 interface AdminAuthContextType {
   adminUser: AdminUser | null;
@@ -35,7 +36,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
 
     try {
-      const res = await fetch('/api/admin/auth/me', {
+      const res = await fetch(getApiUrl('/api/admin/auth/me'), {
         headers,
         credentials: 'include'
       });
@@ -76,7 +77,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     setIsForbidden(false);
 
     try {
-      const res = await fetch('/api/admin/auth/login', {
+      const res = await fetch(getApiUrl('/api/admin/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -114,7 +115,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
   const logout = async () => {
     const token = getStoredToken();
     try {
-      await fetch('/api/admin/auth/logout', {
+      await fetch(getApiUrl('/api/admin/auth/logout'), {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         credentials: 'include'
