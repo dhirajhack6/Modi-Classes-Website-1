@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
 @layer utilities {
   .perspective-1000 {
     perspective: 1000px;
@@ -12,6 +19,12 @@
   }
   .backface-hidden {
     backface-visibility: hidden;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
 

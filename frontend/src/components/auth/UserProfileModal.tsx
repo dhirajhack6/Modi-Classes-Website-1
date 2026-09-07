@@ -118,16 +118,16 @@ export const UserProfileModal: React.FC = () => {
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 10 }}
-        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200"
+        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200 max-h-[92vh] flex flex-col"
       >
         {/* Header */}
-        <div className="bg-[#2874f0] text-white p-5 flex items-center justify-between">
+        <div className="bg-[#2874f0] text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-white text-lg font-bold">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-white text-base sm:text-lg font-bold">
               {currentUser.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white leading-tight">{currentUser.name}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white leading-tight">{currentUser.name}</h3>
               <p className="text-xs text-blue-100 flex items-center gap-1.5 mt-0.5">
                 <span className="capitalize">{currentUser.role}</span>
                 {currentUser.studentRollNumber && (
@@ -148,10 +148,10 @@ export const UserProfileModal: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-4 text-xs font-semibold">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-4 text-xs font-semibold shrink-0 overflow-x-auto">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`py-3 px-4 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`py-3 px-4 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'profile'
                 ? 'border-[#2874f0] text-[#2874f0]'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -162,7 +162,7 @@ export const UserProfileModal: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('addresses')}
-            className={`py-3 px-4 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`py-3 px-4 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'addresses'
                 ? 'border-[#2874f0] text-[#2874f0]'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -174,7 +174,7 @@ export const UserProfileModal: React.FC = () => {
         </div>
 
         {/* Body Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {activeTab === 'profile' && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">

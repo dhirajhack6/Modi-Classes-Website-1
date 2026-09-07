@@ -77,12 +77,12 @@ export const AdminPaymentsView: React.FC = () => {
     <div className="space-y-6 animate-fade-in text-slate-100">
       
       {/* Top Banner with Total Settled Revenue */}
-      <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+      <div className="p-4 sm:p-6 bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
         <div>
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             Total Settled Revenue (Database Confirmed)
           </span>
-          <div className="text-3xl font-black text-emerald-400 font-mono mt-1">
+          <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono mt-1">
             ₹{totalSettledRevenue.toLocaleString('en-IN')}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
@@ -90,7 +90,7 @@ export const AdminPaymentsView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={fetchPayments}
             className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-colors cursor-pointer"
@@ -102,8 +102,8 @@ export const AdminPaymentsView: React.FC = () => {
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
           <input
             id="admin-payment-search-input"
@@ -115,12 +115,12 @@ export const AdminPaymentsView: React.FC = () => {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
           {filters.map((f) => (
             <button
               key={f.id}
               onClick={() => setSelectedFilter(f.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedFilter === f.id
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'
@@ -132,7 +132,7 @@ export const AdminPaymentsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Transactions Table */}
+      {/* Transactions Container: Cards on Mobile, Table on Desktop */}
       <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
         {isLoading ? (
           <div className="p-12 text-center text-slate-500 text-xs">
@@ -144,61 +144,98 @@ export const AdminPaymentsView: React.FC = () => {
             No payments found.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
-                <tr>
-                  <th className="py-3.5 px-4">Transaction ID</th>
-                  <th className="py-3.5 px-4">Order #</th>
-                  <th className="py-3.5 px-4">Customer</th>
-                  <th className="py-3.5 px-4">Method</th>
-                  <th className="py-3.5 px-4">Amount</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium font-mono text-[11px]">
-                {filteredPayments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
-                      {p.paymentTransactionId || 'TXN-PENDING'}
-                    </td>
-                    <td className="py-3.5 px-4 text-blue-400 font-bold whitespace-nowrap">
-                      {p.orderNumber}
-                    </td>
-                    <td className="py-3.5 px-4 font-sans">
-                      <div className="font-bold text-slate-200">{p.customerName}</div>
-                      <div className="text-[10px] text-slate-500 truncate max-w-[160px] font-mono">{p.customerEmail}</div>
-                    </td>
-                    <td className="py-3.5 px-4 uppercase text-slate-300 font-bold whitespace-nowrap">
-                      {p.paymentMethod}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
-                      ₹{p.amount}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap font-sans">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        p.paymentStatus === 'paid'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : p.paymentStatus === 'pending'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                      }`}>
-                        {p.paymentStatus}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
-                      {new Date(p.date).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </td>
+          <>
+            {/* Mobile Cards List (< md) */}
+            <div className="md:hidden divide-y divide-slate-800/80">
+              {filteredPayments.map((p) => (
+                <div key={p.id} className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-blue-400 text-xs">{p.orderNumber}</span>
+                    <span className="font-mono font-black text-emerald-400 text-sm">₹{p.amount}</span>
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-200 text-xs">{p.customerName}</div>
+                    <div className="text-[10px] text-slate-400 font-mono truncate">{p.customerEmail}</div>
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[11px]">
+                    <span className="text-[10px] font-mono text-slate-400 truncate max-w-[180px]">
+                      TXN: {p.paymentTransactionId || 'TXN-PENDING'}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                      p.paymentStatus === 'paid'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                        : p.paymentStatus === 'pending'
+                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                    }`}>
+                      {p.paymentStatus}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                    <span className="uppercase font-semibold">Method: {p.paymentMethod}</span>
+                    <span>{new Date(p.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th className="py-3.5 px-4">Transaction ID</th>
+                    <th className="py-3.5 px-4">Order #</th>
+                    <th className="py-3.5 px-4">Customer</th>
+                    <th className="py-3.5 px-4">Method</th>
+                    <th className="py-3.5 px-4">Amount</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium font-mono text-[11px]">
+                  {filteredPayments.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
+                        {p.paymentTransactionId || 'TXN-PENDING'}
+                      </td>
+                      <td className="py-3.5 px-4 text-blue-400 font-bold whitespace-nowrap">
+                        {p.orderNumber}
+                      </td>
+                      <td className="py-3.5 px-4 font-sans">
+                        <div className="font-bold text-slate-200">{p.customerName}</div>
+                        <div className="text-[10px] text-slate-500 truncate max-w-[160px] font-mono">{p.customerEmail}</div>
+                      </td>
+                      <td className="py-3.5 px-4 uppercase text-slate-300 font-bold whitespace-nowrap">
+                        {p.paymentMethod}
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
+                        ₹{p.amount}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap font-sans">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          p.paymentStatus === 'paid'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : p.paymentStatus === 'pending'
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                        }`}>
+                          {p.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                        {new Date(p.date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

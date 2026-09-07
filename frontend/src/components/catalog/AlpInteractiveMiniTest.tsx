@@ -96,17 +96,18 @@ export const AlpInteractiveMiniTest: React.FC = () => {
         </div>
 
         {/* Mini Test Mode Tabs */}
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-1.5 sm:gap-2">
           <button
             onClick={() => setActiveTab('brick')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
               activeTab === 'brick'
                 ? 'bg-amber-500 text-slate-950 shadow-md font-black'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Layers className="w-4 h-4" />
-            <span>1. 3D Brick Test (Depth Perception)</span>
+            <Layers className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            <span className="sm:hidden">1. Brick Test</span>
+            <span className="hidden sm:inline">1. 3D Brick Test (Depth Perception)</span>
           </button>
 
           <button
@@ -114,36 +115,38 @@ export const AlpInteractiveMiniTest: React.FC = () => {
               setActiveTab('memory');
               restartMemoryTest();
             }}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
               activeTab === 'memory'
                 ? 'bg-amber-500 text-slate-950 shadow-md font-black'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Eye className="w-4 h-4" />
-            <span>2. Landmark Memory Test (Battery 1)</span>
+            <Eye className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            <span className="sm:hidden">2. Memory Test</span>
+            <span className="hidden sm:inline">2. Landmark Memory Test (Battery 1)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('clock')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
               activeTab === 'clock'
                 ? 'bg-amber-500 text-slate-950 shadow-md font-black'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Compass className="w-4 h-4" />
-            <span>3. Following Direction (Clock Test)</span>
+            <Compass className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            <span className="sm:hidden">3. Clock Test</span>
+            <span className="hidden sm:inline">3. Following Direction (Clock Test)</span>
           </button>
         </div>
 
         {/* Tab 1: 3D Brick Depth Perception Test */}
         {activeTab === 'brick' && (
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-slate-50/80 p-6 rounded-2xl border border-slate-200">
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center bg-slate-50/80 p-4 sm:p-6 rounded-2xl border border-slate-200">
             
             {/* Visual 3D Stack Canvas */}
             <div className="lg:col-span-6 flex flex-col items-center">
-              <div className="text-center mb-4">
+              <div className="text-center mb-3">
                 <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">
                   Interactive 3D Stack Visualizer
                 </span>
@@ -151,7 +154,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
               </div>
 
               {/* Graphical Brick Stack Representation */}
-              <div className="relative w-full max-w-sm h-64 bg-white rounded-2xl border border-slate-300 p-4 flex flex-col justify-center items-center shadow-xs">
+              <div className="relative w-full max-w-sm h-60 sm:h-64 bg-white rounded-2xl border border-slate-300 p-3 sm:p-4 flex flex-col justify-center items-center shadow-xs">
                 
                 {/* Top Row: Bricks C and D */}
                 <div className="flex gap-2 mb-2">
@@ -161,7 +164,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                       setUserBrickAnswer(null);
                       setBrickSubmitted(false);
                     }}
-                    className={`w-24 h-12 rounded-lg font-black text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
+                    className={`w-20 sm:w-24 h-11 sm:h-12 rounded-lg font-black text-xs sm:text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
                       selectedBrick === 'C'
                         ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-400 scale-105'
                         : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
@@ -176,7 +179,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                       setUserBrickAnswer(null);
                       setBrickSubmitted(false);
                     }}
-                    className={`w-24 h-12 rounded-lg font-black text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
+                    className={`w-20 sm:w-24 h-11 sm:h-12 rounded-lg font-black text-xs sm:text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
                       selectedBrick === 'D'
                         ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-400 scale-105'
                         : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
@@ -194,7 +197,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                       setUserBrickAnswer(null);
                       setBrickSubmitted(false);
                     }}
-                    className={`w-24 h-14 rounded-lg font-black text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
+                    className={`w-20 sm:w-24 h-12 sm:h-14 rounded-lg font-black text-xs sm:text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
                       selectedBrick === 'B'
                         ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-400 scale-105'
                         : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
@@ -209,13 +212,13 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                       setUserBrickAnswer(null);
                       setBrickSubmitted(false);
                     }}
-                    className={`w-36 h-14 rounded-lg font-black text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
+                    className={`w-28 sm:w-36 h-12 sm:h-14 rounded-lg font-black text-xs sm:text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
                       selectedBrick === 'A'
                         ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-400 scale-105'
                         : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
                     }`}
                   >
-                    Brick A (Selected)
+                    Brick A
                   </button>
                 </div>
 
@@ -227,7 +230,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                       setUserBrickAnswer(null);
                       setBrickSubmitted(false);
                     }}
-                    className={`w-48 h-12 rounded-lg font-black text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
+                    className={`w-40 sm:w-48 h-11 sm:h-12 rounded-lg font-black text-xs sm:text-sm transition-all border flex items-center justify-center cursor-pointer shadow-xs ${
                       selectedBrick === 'E'
                         ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-400 scale-105'
                         : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
@@ -331,26 +334,26 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                   <span>Study Phase: Memorize Landmark Locations ({memoryTimer}s remaining)</span>
                 </div>
 
-                <div className="max-w-md mx-auto grid grid-cols-2 gap-4 bg-white p-6 rounded-2xl border border-slate-300 shadow-xs">
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
-                    <span className="text-2xl block">🏥</span>
+                <div className="max-w-md mx-auto grid grid-cols-2 gap-2 sm:gap-4 bg-white p-3 sm:p-6 rounded-2xl border border-slate-300 shadow-xs">
+                  <div className="p-2.5 sm:p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+                    <span className="text-xl sm:text-2xl block">🏥</span>
                     <span className="text-xs font-bold text-slate-900 mt-1 block">Hospital</span>
-                    <span className="text-[10px] text-amber-800 font-bold">(Top-Left / NW)</span>
+                    <span className="text-[9px] sm:text-[10px] text-amber-800 font-bold">(Top-Left / NW)</span>
                   </div>
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
-                    <span className="text-2xl block">🚉</span>
+                  <div className="p-2.5 sm:p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+                    <span className="text-xl sm:text-2xl block">🚉</span>
                     <span className="text-xs font-bold text-slate-900 mt-1 block">Railway Station</span>
-                    <span className="text-[10px] text-amber-800 font-bold">(Top-Right / NE)</span>
+                    <span className="text-[9px] sm:text-[10px] text-amber-800 font-bold">(Top-Right / NE)</span>
                   </div>
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
-                    <span className="text-2xl block">🏫</span>
+                  <div className="p-2.5 sm:p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+                    <span className="text-xl sm:text-2xl block">🏫</span>
                     <span className="text-xs font-bold text-slate-900 mt-1 block">School</span>
-                    <span className="text-[10px] text-amber-800 font-bold">(Bottom-Left / SW)</span>
+                    <span className="text-[9px] sm:text-[10px] text-amber-800 font-bold">(Bottom-Left / SW)</span>
                   </div>
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
-                    <span className="text-2xl block">⛽</span>
+                  <div className="p-2.5 sm:p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+                    <span className="text-xl sm:text-2xl block">⛽</span>
                     <span className="text-xs font-bold text-slate-900 mt-1 block">Petrol Pump</span>
-                    <span className="text-[10px] text-amber-800 font-bold">(Bottom-Right / SE)</span>
+                    <span className="text-[9px] sm:text-[10px] text-amber-800 font-bold">(Bottom-Right / SE)</span>
                   </div>
                 </div>
 
@@ -367,11 +370,11 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                   <span>Test Phase: Answer from Memory</span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
                   Where was the <span className="text-amber-700">🚉 Railway Station</span> located?
                 </h3>
 
-                <div className="max-w-md mx-auto grid grid-cols-2 gap-3">
+                <div className="max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {[
                     { id: 'NW', label: 'Top-Left (North-West)' },
                     { id: 'NE', label: 'Top-Right (North-East)' },
@@ -384,7 +387,7 @@ export const AlpInteractiveMiniTest: React.FC = () => {
                         setUserMemoryAnswer(loc.id);
                         setMemoryPhase('result');
                       }}
-                      className="p-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs border border-slate-300 hover:border-amber-500 cursor-pointer transition-all shadow-xs"
+                      className="p-3 sm:p-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs border border-slate-300 hover:border-amber-500 cursor-pointer transition-all shadow-xs"
                     >
                       {loc.label}
                     </button>

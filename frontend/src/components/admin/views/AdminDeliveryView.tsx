@@ -209,83 +209,153 @@ export const AdminDeliveryView: React.FC = () => {
             No matching delivery records found.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
-                <tr>
-                  <th className="py-3.5 px-4">Order #</th>
-                  <th className="py-3.5 px-4">Customer & Destination</th>
-                  <th className="py-3.5 px-4">Carrier Partner</th>
-                  <th className="py-3.5 px-4">AWB Tracking Number</th>
-                  <th className="py-3.5 px-4">Delivery Status</th>
-                  <th className="py-3.5 px-4">Est. Date</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium text-[11px]">
-                {filtered.map((d) => (
-                  <tr key={d.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-white whitespace-nowrap">
-                      {d.orderNumber}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-200">{d.customerName}</div>
-                      <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-slate-500" /> {d.customerPhone}
+          <>
+            {/* Mobile Deliveries List (< md) */}
+            <div className="md:hidden divide-y divide-slate-800/80">
+              {filtered.map((d) => (
+                <div key={d.id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-white text-xs">{d.orderNumber}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                      d.deliveryStatus === 'delivered'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                        : d.deliveryStatus === 'shipped' || d.deliveryStatus === 'in_transit'
+                        ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30'
+                        : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                    }`}>
+                      {d.deliveryStatus}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="font-bold text-slate-200 text-xs">{d.customerName}</div>
+                    <div className="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+                      <Phone className="w-3 h-3 text-slate-500" /> {d.customerPhone}
+                    </div>
+                    {d.shippingAddress && (
+                      <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+                        <span className="truncate">{d.shippingAddress.city}, {d.shippingAddress.state} - {d.shippingAddress.pincode}</span>
                       </div>
-                      {d.shippingAddress && (
-                        <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-slate-500" /> {d.shippingAddress.city}, {d.shippingAddress.state} - {d.shippingAddress.pincode}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-semibold">
-                        {d.deliveryProvider || 'Delhivery Express'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-amber-400 whitespace-nowrap">
-                      {d.trackingNumber || 'Pending AWB Generation'}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
-                        d.deliveryStatus === 'delivered'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : d.deliveryStatus === 'shipped' || d.deliveryStatus === 'in_transit'
-                          ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30'
-                          : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
-                      }`}>
-                        {d.deliveryStatus}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap font-mono">
-                      {d.expectedDeliveryDate || '2-3 Days'}
-                    </td>
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => handleOpenEdit(d)}
-                          className="px-2.5 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          disabled={retryingOrderId === (d.orderId || d.id)}
-                          onClick={() => handleRetryShiprocket(d.orderId || d.id)}
-                          className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                          title="Retry Shiprocket Shipment Creation"
-                        >
-                          <RefreshCw className={`w-3.5 h-3.5 ${retryingOrderId === (d.orderId || d.id) ? 'animate-spin' : ''}`} />
-                          <span>Retry Shiprocket</span>
-                        </button>
-                      </div>
-                    </td>
+                    )}
+                  </div>
+
+                  <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800/80 space-y-1 text-xs">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">Carrier:</span>
+                      <span className="font-semibold text-slate-200">{d.deliveryProvider || 'Delhivery Express'}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">AWB Track:</span>
+                      <span className="font-mono font-bold text-amber-400 truncate max-w-[180px]">{d.trackingNumber || 'Pending Generation'}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-500">
+                      <span>Est. Delivery:</span>
+                      <span className="font-mono">{d.expectedDeliveryDate || '2-3 Business Days'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      onClick={() => handleOpenEdit(d)}
+                      className="flex-1 py-2 px-3 bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit Details</span>
+                    </button>
+                    <button
+                      disabled={retryingOrderId === (d.orderId || d.id)}
+                      onClick={() => handleRetryShiprocket(d.orderId || d.id)}
+                      className="py-2 px-3 bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      title="Retry Shiprocket Shipment Creation"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${retryingOrderId === (d.orderId || d.id) ? 'animate-spin' : ''}`} />
+                      <span>Retry Shiprocket</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Deliveries Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th className="py-3.5 px-4">Order #</th>
+                    <th className="py-3.5 px-4">Customer & Destination</th>
+                    <th className="py-3.5 px-4">Carrier Partner</th>
+                    <th className="py-3.5 px-4">AWB Tracking Number</th>
+                    <th className="py-3.5 px-4">Delivery Status</th>
+                    <th className="py-3.5 px-4">Est. Date</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium text-[11px]">
+                  {filtered.map((d) => (
+                    <tr key={d.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-white whitespace-nowrap">
+                        {d.orderNumber}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-200">{d.customerName}</div>
+                        <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                          <Phone className="w-3 h-3 text-slate-500" /> {d.customerPhone}
+                        </div>
+                        {d.shippingAddress && (
+                          <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3 text-slate-500" /> {d.shippingAddress.city}, {d.shippingAddress.state} - {d.shippingAddress.pincode}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-semibold">
+                          {d.deliveryProvider || 'Delhivery Express'}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-amber-400 whitespace-nowrap">
+                        {d.trackingNumber || 'Pending AWB Generation'}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                          d.deliveryStatus === 'delivered'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : d.deliveryStatus === 'shipped' || d.deliveryStatus === 'in_transit'
+                            ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30'
+                            : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                        }`}>
+                          {d.deliveryStatus}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap font-mono">
+                        {d.expectedDeliveryDate || '2-3 Days'}
+                      </td>
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(d)}
+                            className="px-2.5 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            disabled={retryingOrderId === (d.orderId || d.id)}
+                            onClick={() => handleRetryShiprocket(d.orderId || d.id)}
+                            className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                            title="Retry Shiprocket Shipment Creation"
+                          >
+                            <RefreshCw className={`w-3.5 h-3.5 ${retryingOrderId === (d.orderId || d.id) ? 'animate-spin' : ''}`} />
+                            <span>Retry Shiprocket</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

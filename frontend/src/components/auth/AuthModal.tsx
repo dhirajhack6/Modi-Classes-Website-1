@@ -196,7 +196,7 @@ export const AuthModal: React.FC = () => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 10 }}
         transition={{ duration: 0.2 }}
-        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200"
+        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200 max-h-[92vh] overflow-y-auto md:overflow-hidden"
       >
         {/* Close Button */}
         <button
@@ -208,51 +208,51 @@ export const AuthModal: React.FC = () => {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Left Side: Flipkart-Style Blue Brand Banner */}
-        <div className="w-full md:w-2/5 bg-[#2874f0] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
+        {/* Left Side: Blue Brand Banner */}
+        <div className="w-full md:w-2/5 bg-[#2874f0] text-white p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden shrink-0">
           {/* Subtle Background Pattern */}
           <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-blue-600/50 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -left-6 -top-6 w-32 h-32 bg-sky-400/20 rounded-full blur-xl pointer-events-none" />
 
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-xs font-medium tracking-wide mb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-xs font-medium tracking-wide mb-2 sm:mb-4">
               <GraduationCap className="w-3.5 h-3.5 text-yellow-300" />
               <span>Modi Railway Classes</span>
             </div>
 
             {authModalMode === 'login' && (
               <>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Login</h2>
-                <p className="text-blue-100 text-sm leading-relaxed">
-                  Get access to your Orders, CBAT Psycho Test Master Books, Digital PDF Licenses, and Student Batch Discounts.
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1 sm:mb-2">Login</h2>
+                <p className="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  Access your Orders, CBAT Master Books, and Student Batch Discounts.
                 </p>
               </>
             )}
 
             {authModalMode === 'signup' && (
               <>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Looks like you're new here!</h2>
-                <p className="text-blue-100 text-sm leading-relaxed">
-                  Sign up with your mobile number to unlock instant official book purchases & delivery tracking.
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1 sm:mb-2">Create Account</h2>
+                <p className="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  Sign up to unlock instant official book purchases & delivery tracking.
                 </p>
               </>
             )}
 
             {authModalMode === 'otp' && (
               <>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Verify OTP</h2>
-                <p className="text-blue-100 text-sm leading-relaxed">
-                  Enter the 4-digit code sent to your registered mobile number or email ID.
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1 sm:mb-2">Verify OTP</h2>
+                <p className="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  Enter the 4-digit code sent to your mobile or email.
                 </p>
               </>
             )}
           </div>
 
-          {/* Bottom Illustration / Trust Points */}
-          <div className="relative z-10 pt-6 border-t border-blue-400/30 text-xs text-blue-100 space-y-2">
+          {/* Bottom Illustration / Trust Points (desktop) */}
+          <div className="relative z-10 pt-4 sm:pt-6 border-t border-blue-400/30 text-xs text-blue-100 space-y-2 hidden md:block">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0" />
-              <span>100% Genuine Vidyasagar Books</span>
+              <span>100% Genuine Physical Book</span>
             </div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
@@ -262,7 +262,7 @@ export const AuthModal: React.FC = () => {
         </div>
 
         {/* Right Side: Interactive Forms */}
-        <div className="w-full md:w-3/5 p-6 sm:p-8 flex flex-col justify-between bg-white">
+        <div className="w-full md:w-3/5 p-5 sm:p-8 flex flex-col justify-between bg-white overflow-y-auto flex-1">
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
               <span className="font-semibold">Error:</span> {errorMessage}

@@ -105,7 +105,11 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
       rotX,
       rotY
     };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    if (e.pointerType !== 'touch') {
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {}
+    }
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -175,24 +179,34 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
           
           {/* Interactive 3D Stage Container (Pure book presentation with seamless drag-to-inspect) */}
           <div 
-            className="relative w-full rounded-2xl bg-gradient-to-b from-slate-50/80 via-white to-amber-50/20 border border-slate-200/70 p-4 sm:p-8 flex flex-col items-center justify-center select-none touch-none cursor-grab active:cursor-grabbing overflow-hidden"
-            style={{ minHeight: '560px' }}
+            className="relative w-full rounded-2xl bg-gradient-to-b from-slate-50/80 via-white to-amber-50/20 border border-slate-200/70 p-2 sm:p-8 flex flex-col items-center justify-center select-none cursor-grab active:cursor-grabbing overflow-hidden h-[440px] xs:h-[480px] sm:h-[560px]"
+            style={{ touchAction: 'pan-y' }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
           >
-            {/* 3D PERSPECTIVE STAGE (Large, High-Definition Volume) */}
-            <div 
-              className="relative flex items-center justify-center transition-transform duration-75 ease-out"
-              style={{
-                perspective: '1400px',
-                transformStyle: 'preserve-3d',
-                width: '380px',
-                maxWidth: '380px',
-                height: '530px'
-              }}
-            >
+            {/* Mobile Drag to Rotate Hint */}
+            <div className="absolute top-3 inset-x-0 flex items-center justify-center pointer-events-none z-20">
+              <span className="bg-slate-900/80 text-amber-300 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-xs flex items-center gap-1.5 border border-slate-700/80 shadow-xs">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Drag to Rotate 360°</span>
+              </span>
+            </div>
+
+            {/* Responsive Scale Wrapper for Small Mobile Screens */}
+            <div className="transform scale-[0.70] xs:scale-[0.82] sm:scale-100 transition-transform duration-150 origin-center flex items-center justify-center">
+              {/* 3D PERSPECTIVE STAGE (Large, High-Definition Volume) */}
+              <div 
+                className="relative flex items-center justify-center transition-transform duration-75 ease-out"
+                style={{
+                  perspective: '1400px',
+                  transformStyle: 'preserve-3d',
+                  width: '380px',
+                  maxWidth: '380px',
+                  height: '530px'
+                }}
+              >
               
               {/* Dynamic 3D Ground Shadow with real-time tracking */}
               <div 
@@ -409,6 +423,7 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
 
               </div>
             </div>
+          </div>
 
             {/* Stop / Start 3D Motion Control Button */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
@@ -567,6 +582,36 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
 
         </div>
 
+      </div>
+
+      {/* Mobile Sticky Bottom Purchase Action Bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3 pb-safe">
+        <div className="flex flex-col min-w-0">
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">524 Pgs + 50 OMRs</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-black text-slate-900 font-mono">₹{unitPrice}</span>
+            <span className="text-[11px] text-slate-400 line-through font-mono">₹{originalPrice}</span>
+            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.2 rounded font-mono">{savingsPercent}% OFF</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleAddToCart}
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition-colors"
+            title="Add to cart"
+            aria-label="Add to cart"
+          >
+            <ShoppingBag className="w-4 h-4 text-slate-700" />
+          </button>
+          <button
+            onClick={handleInstantBuy}
+            className="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md transition-transform active:scale-95"
+            id="mobile-sticky-buy-btn"
+          >
+            <span>Buy Book Now</span>
+          </button>
+        </div>
       </div>
 
     </div>

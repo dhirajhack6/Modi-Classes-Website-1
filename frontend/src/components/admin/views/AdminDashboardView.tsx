@@ -199,27 +199,27 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
       </div>
 
       {/* 8 Metric KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <div
               key={i}
-              className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between"
+              className="p-3 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
                   {card.title}
                 </span>
-                <div className={`p-2 rounded-xl border ${card.bg}`}>
-                  <Icon className={`w-4 h-4 ${card.color}`} />
+                <div className={`p-1.5 sm:p-2 rounded-xl border shrink-0 ${card.bg}`}>
+                  <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${card.color}`} />
                 </div>
               </div>
-              <div className="mt-4">
-                <div className="text-2xl sm:text-3xl font-black text-white font-mono">
+              <div className="mt-2 sm:mt-4">
+                <div className="text-lg sm:text-2xl lg:text-3xl font-black text-white font-mono truncate">
                   {card.value}
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1 font-medium">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">
                   {card.subtitle}
                 </p>
               </div>

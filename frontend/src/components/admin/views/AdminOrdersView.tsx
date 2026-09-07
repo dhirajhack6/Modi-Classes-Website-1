@@ -255,61 +255,29 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
             No matching orders found.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Order ID</th>
-                  <th className="py-3 px-4">Customer</th>
-                  <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Qty</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Payment</th>
-                  <th className="py-3 px-4">Order Status</th>
-                  <th className="py-3 px-4">Delivery</th>
-                  <th className="py-3 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
-                {orders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-white whitespace-nowrap">
-                      {ord.orderNumber}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-200">{ord.customerName}</div>
-                      <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{ord.customerEmail}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-300 whitespace-nowrap">
-                      {ord.customerPhone}
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
-                      {new Date(ord.createdAt).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-center">
-                      {ord.itemsCount || 1}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-black text-white whitespace-nowrap">
-                      ₹{ord.totalAmount}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        ord.paymentStatus === 'paid'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : ord.paymentStatus === 'pending'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                      }`}>
-                        {ord.paymentStatus}
+          <>
+            {/* Mobile Orders List (< md) */}
+            <div className="md:hidden divide-y divide-slate-800/80">
+              {orders.map((ord) => (
+                <div key={ord.id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-white text-xs">{ord.orderNumber}</span>
+                    <span className="font-mono font-black text-amber-400 text-sm">₹{ord.totalAmount}</span>
+                  </div>
+
+                  <div>
+                    <div className="font-bold text-slate-200 text-xs">{ord.customerName}</div>
+                    <div className="text-[11px] text-slate-400 font-mono flex items-center justify-between mt-0.5">
+                      <span>{ord.customerPhone}</span>
+                      <span className="text-[10px] text-slate-500">
+                        {new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/60 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${
                         ord.orderStatus === 'delivered'
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                           : ord.orderStatus === 'shipped' || ord.orderStatus === 'in_transit'
@@ -320,24 +288,113 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                       }`}>
                         {ord.orderStatus}
                       </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-[11px] text-slate-400 whitespace-nowrap">
-                      {ord.courierPartner || 'Delhivery'}
-                    </td>
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => handleOpenOrderDetails(ord)}
-                        className="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Manage</span>
-                      </button>
-                    </td>
+
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                        ord.paymentStatus === 'paid'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                      }`}>
+                        {ord.paymentStatus}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => handleOpenOrderDetails(ord)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Manage Order</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Orders Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Order ID</th>
+                    <th className="py-3 px-4">Customer</th>
+                    <th className="py-3 px-4">Phone</th>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Qty</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Payment</th>
+                    <th className="py-3 px-4">Order Status</th>
+                    <th className="py-3 px-4">Delivery</th>
+                    <th className="py-3 px-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium">
+                  {orders.map((ord) => (
+                    <tr key={ord.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-white whitespace-nowrap">
+                        {ord.orderNumber}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-200">{ord.customerName}</div>
+                        <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{ord.customerEmail}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-300 whitespace-nowrap">
+                        {ord.customerPhone}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                        {new Date(ord.createdAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-center">
+                        {ord.itemsCount || 1}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-black text-white whitespace-nowrap">
+                        ₹{ord.totalAmount}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          ord.paymentStatus === 'paid'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : ord.paymentStatus === 'pending'
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                        }`}>
+                          {ord.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                          ord.orderStatus === 'delivered'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : ord.orderStatus === 'shipped' || ord.orderStatus === 'in_transit'
+                            ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30'
+                            : ord.orderStatus === 'cancelled'
+                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                            : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                        }`}>
+                          {ord.orderStatus}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-[11px] text-slate-400 whitespace-nowrap">
+                        {ord.courierPartner || 'Delhivery'}
+                      </td>
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleOpenOrderDetails(ord)}
+                          className="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Manage</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

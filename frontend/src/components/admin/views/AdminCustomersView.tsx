@@ -129,75 +129,120 @@ export const AdminCustomersView: React.FC = () => {
             No customers found.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
-                <tr>
-                  <th className="py-3.5 px-4">Customer Name</th>
-                  <th className="py-3.5 px-4">Contact Info</th>
-                  <th className="py-3.5 px-4 text-center">Orders Placed</th>
-                  <th className="py-3.5 px-4">Total Spent</th>
-                  <th className="py-3.5 px-4">Last Order</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
-                {customers.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-white flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center text-[10px]">
-                          {c.name.charAt(0)}
-                        </div>
-                        <span>{c.name}</span>
+          <>
+            {/* Mobile Customers List (< md) */}
+            <div className="md:hidden divide-y divide-slate-800/80">
+              {customers.map((c) => (
+                <div key={c.id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center text-xs">
+                        {c.name.charAt(0)}
                       </div>
-                      {c.studentRollNumber && (
-                        <div className="text-[10px] font-mono text-amber-400/90 pl-8">
-                          Roll: {c.studentRollNumber}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="text-slate-300 truncate max-w-[200px]">{c.email}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">{c.phone}</div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-mono font-bold text-white">
-                      {c.ordersCount}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-black text-emerald-400">
+                      <div>
+                        <span className="font-bold text-white text-xs block">{c.name}</span>
+                        {c.studentRollNumber && (
+                          <span className="text-[10px] font-mono text-amber-400/90 block">Roll: {c.studentRollNumber}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-mono font-black text-emerald-400 text-sm">
                       ₹{c.totalSpent.toLocaleString('en-IN')}
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
-                      {c.lastOrderDate ? (
-                        new Date(c.lastOrderDate).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })
-                      ) : (
-                        <span className="text-slate-600">No orders yet</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                        ● Active Student
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => handleViewCustomer(c.id)}
-                        className="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View Profile</span>
-                      </button>
-                    </td>
+                    </span>
+                  </div>
+
+                  <div className="text-xs space-y-1">
+                    <div className="text-slate-300 truncate font-mono text-[11px]">{c.email}</div>
+                    <div className="text-slate-400 font-mono text-[11px]">{c.phone}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-xs">
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      Orders: <strong className="text-slate-300">{c.ordersCount}</strong> • {c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'No orders'}
+                    </span>
+                    <button
+                      onClick={() => handleViewCustomer(c.id)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Profile</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Customers Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/80 uppercase text-[10px] tracking-wider text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th className="py-3.5 px-4">Customer Name</th>
+                    <th className="py-3.5 px-4">Contact Info</th>
+                    <th className="py-3.5 px-4 text-center">Orders Placed</th>
+                    <th className="py-3.5 px-4">Total Spent</th>
+                    <th className="py-3.5 px-4">Last Order</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium">
+                  {customers.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center text-[10px]">
+                            {c.name.charAt(0)}
+                          </div>
+                          <span>{c.name}</span>
+                        </div>
+                        {c.studentRollNumber && (
+                          <div className="text-[10px] font-mono text-amber-400/90 pl-8">
+                            Roll: {c.studentRollNumber}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="text-slate-300 truncate max-w-[200px]">{c.email}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{c.phone}</div>
+                      </td>
+                      <td className="py-3.5 px-4 text-center font-mono font-bold text-white">
+                        {c.ordersCount}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-black text-emerald-400">
+                        ₹{c.totalSpent.toLocaleString('en-IN')}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                        {c.lastOrderDate ? (
+                          new Date(c.lastOrderDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                        ) : (
+                          <span className="text-slate-600">No orders yet</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                          ● Active Student
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleViewCustomer(c.id)}
+                          className="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View Profile</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
