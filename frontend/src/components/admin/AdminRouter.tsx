@@ -14,12 +14,13 @@ type AdminSection = 'dashboard' | 'orders' | 'customers' | 'book' | 'payments' |
 export const AdminRouter: React.FC = () => {
   const getSectionFromPath = (path: string): AdminSection => {
     const cleanPath = path.toLowerCase().replace(/\/$/, '');
-    if (cleanPath === '/admin/orders') return 'orders';
-    if (cleanPath === '/admin/customers') return 'customers';
-    if (cleanPath === '/admin/book') return 'book';
-    if (cleanPath === '/admin/payments') return 'payments';
-    if (cleanPath === '/admin/delivery') return 'delivery';
-    if (cleanPath === '/admin/settings') return 'settings';
+    const cleanHash = window.location.hash.toLowerCase().replace(/^#\/?admin\/?/, '').replace(/\/$/, '');
+    if (cleanPath === '/admin/orders' || cleanHash === 'orders') return 'orders';
+    if (cleanPath === '/admin/customers' || cleanHash === 'customers') return 'customers';
+    if (cleanPath === '/admin/book' || cleanHash === 'book') return 'book';
+    if (cleanPath === '/admin/payments' || cleanHash === 'payments') return 'payments';
+    if (cleanPath === '/admin/delivery' || cleanHash === 'delivery') return 'delivery';
+    if (cleanPath === '/admin/settings' || cleanHash === 'settings') return 'settings';
     return 'dashboard';
   };
 
@@ -30,11 +31,15 @@ export const AdminRouter: React.FC = () => {
   const [selectedOrderForModal, setSelectedOrderForModal] = useState<Order | null>(null);
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handleRouteSync = () => {
       setCurrentSection(getSectionFromPath(window.location.pathname));
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleRouteSync);
+    window.addEventListener('hashchange', handleRouteSync);
+    return () => {
+      window.removeEventListener('popstate', handleRouteSync);
+      window.removeEventListener('hashchange', handleRouteSync);
+    };
   }, []);
 
   const navigateTo = (section: AdminSection) => {

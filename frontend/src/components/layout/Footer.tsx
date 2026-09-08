@@ -163,7 +163,17 @@ export const Footer: React.FC = () => {
         {/* Bottom Copyright */}
         <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Modi Railway Psychotest Classes. All rights reserved.</p>
-          <p className="text-[11px] font-medium">100% RDSO Lucknow CBAT Syllabus Compliant</p>
+          <div className="flex items-center gap-4 text-[11px] font-medium">
+            <span>100% RDSO Lucknow CBAT Syllabus Compliant</span>
+            <span className="text-slate-300">•</span>
+            <a 
+              href="/admin" 
+              className="text-slate-400 hover:text-indigo-600 transition-colors font-medium"
+              title="Open Admin Dashboard"
+            >
+              Admin Portal
+            </a>
+          </div>
         </div>
 
       </div>

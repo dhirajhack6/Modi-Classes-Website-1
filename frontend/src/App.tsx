@@ -87,18 +87,30 @@ const MainAppContent: React.FC = () => {
   );
 };
 
-export default function App() {
-  const [isAdminPath, setIsAdminPath] = useState(() => 
-    window.location.pathname.startsWith('/admin')
+const checkIsAdminPath = () => {
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  return (
+    path.startsWith('/admin') ||
+    hash.startsWith('#admin') ||
+    hash.startsWith('#/admin')
   );
+};
+
+export default function App() {
+  const [isAdminPath, setIsAdminPath] = useState(checkIsAdminPath);
 
   useEffect(() => {
     const handleLocationChange = () => {
-      setIsAdminPath(window.location.pathname.startsWith('/admin'));
+      setIsAdminPath(checkIsAdminPath());
     };
 
     window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   if (isAdminPath) {
