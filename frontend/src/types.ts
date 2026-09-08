@@ -50,6 +50,7 @@ export interface Book {
   author: string;
   authorDesignation: string;
   coverImage: string;
+  backCoverImage?: string;
   formatAvailable: BookFormat[];
   
   // Pricing (in INR ₹)

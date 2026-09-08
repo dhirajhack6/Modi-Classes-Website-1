@@ -41,6 +41,7 @@ export const BookDetailModal: React.FC = () => {
   const [selectedFormat, setSelectedFormat] = useState<BookFormat>('combo');
   const [quantity, setQuantity] = useState(1);
   const [pincodeInput, setPincodeInput] = useState(deliveryPincode || '110009');
+  const [coverSide, setCoverSide] = useState<'front' | 'back'>('front');
   
   // Review form modal inside
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -154,11 +155,48 @@ export const BookDetailModal: React.FC = () => {
             
             {/* Left: Book Cover & Sample CTA */}
             <div className="md:col-span-5 space-y-4">
-              <div className="relative aspect-[3/4] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-                <BookCoverGraphic />
+              <div 
+                className="relative aspect-[3/4] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-lg border border-slate-200 cursor-pointer group"
+                onClick={() => setCoverSide(prev => prev === 'front' ? 'back' : 'front')}
+                title="Click to toggle Front / Back Cover"
+              >
+                <BookCoverGraphic 
+                  side={coverSide}
+                  coverImage={book.coverImage}
+                  backCoverImage={book.backCoverImage}
+                />
                 <div className="absolute top-3 left-3 bg-indigo-700/95 text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-xs z-30">
                   {book.edition}
                 </div>
+                <div className="absolute bottom-3 right-3 bg-slate-900/85 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md backdrop-blur-xs flex items-center gap-1 z-30 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <span>{coverSide === 'front' ? 'Flip to Back Cover' : 'Flip to Front Cover'}</span>
+                </div>
+              </div>
+
+              {/* Cover View Selector: Front / Back */}
+              <div className="flex items-center justify-center gap-2 max-w-[320px] mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setCoverSide('front')}
+                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 border ${
+                    coverSide === 'front'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <span>Front Cover</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCoverSide('back')}
+                  className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 border ${
+                    coverSide === 'back'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <span>Back Cover</span>
+                </button>
               </div>
 
               {/* Free Sample Chapter Button */}

@@ -450,6 +450,8 @@ async function initDb(maxRetries = 5, retryDelayMs = 2000): Promise<boolean> {
       );
     `);
 
+    await client.query(`ALTER TABLE books ADD COLUMN IF NOT EXISTS "backCoverImage" TEXT;`);
+
     // 3. Coupons Table
     await client.query(`
       CREATE TABLE IF NOT EXISTS coupons (
@@ -828,6 +830,7 @@ const parseBook = (row: any) => {
   const isActive = row.isActive !== undefined ? row.isActive : row.isactive;
   const authorDesignation = row.authorDesignation !== undefined ? row.authorDesignation : row.authordesignation;
   const coverImage = row.coverImage !== undefined ? row.coverImage : row.coverimage;
+  const backCoverImage = row.backCoverImage !== undefined ? row.backCoverImage : (row.backcoverimage || '/assets/book-back.jpg');
   const formatAvailable = row.formatAvailable !== undefined ? row.formatAvailable : row.formatavailable;
   const createdAt = row.createdAt !== undefined ? row.createdAt : row.createdat;
 
@@ -839,6 +842,7 @@ const parseBook = (row: any) => {
     author: row.author,
     authorDesignation: authorDesignation,
     coverImage: coverImage,
+    backCoverImage: backCoverImage || '/assets/book-back.jpg',
     formatAvailable: typeof formatAvailable === 'string' ? JSON.parse(formatAvailable) : formatAvailable,
     pricePdf: pricePdf ? Number(pricePdf) : 0,
     discountPricePdf: discountPricePdf ? Number(discountPricePdf) : 0,

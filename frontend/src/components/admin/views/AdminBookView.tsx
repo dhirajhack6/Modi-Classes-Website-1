@@ -194,18 +194,34 @@ export const AdminBookView: React.FC = () => {
         
         {/* Book Overview Banner Card */}
         <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col md:flex-row items-center gap-6 shadow-xl">
-          <div className="w-32 h-44 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-lg shrink-0 flex items-center justify-center relative">
-            <img
-              src={book.coverImage || '/assets/book.jpg'}
-              alt={book.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/book.jpg';
-              }}
-            />
-            <span className="absolute bottom-2 left-2 right-2 text-center bg-slate-950/80 text-[9px] font-mono text-amber-300 py-0.5 rounded">
-              524 Pages
-            </span>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-28 h-40 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-lg shrink-0 flex items-center justify-center relative">
+              <img
+                src={book.coverImage || '/assets/book.jpg'}
+                alt="Front Cover"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/book.jpg';
+                }}
+              />
+              <span className="absolute bottom-2 left-2 right-2 text-center bg-slate-950/85 text-[9px] font-mono text-amber-300 py-0.5 rounded backdrop-blur-xs font-bold">
+                Front Cover
+              </span>
+            </div>
+
+            <div className="w-28 h-40 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-lg shrink-0 flex items-center justify-center relative">
+              <img
+                src={book.backCoverImage || '/assets/book-back.jpg'}
+                alt="Back Cover"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/book-back.png';
+                }}
+              />
+              <span className="absolute bottom-2 left-2 right-2 text-center bg-slate-950/85 text-[9px] font-mono text-emerald-300 py-0.5 rounded backdrop-blur-xs font-bold">
+                Back Cover
+              </span>
+            </div>
           </div>
 
           <div className="flex-1 space-y-2 text-center md:text-left">

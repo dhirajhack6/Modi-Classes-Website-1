@@ -144,6 +144,26 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
     openCheckoutDirect(book, 'hardcopy', quantity);
   };
 
+  const handleShowFront = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAutoMoving(false);
+    angleYRef.current = -22;
+    angleXBaseRef.current = 10;
+    setRotY(-22);
+    setRotX(10);
+    setRotZ(0);
+  };
+
+  const handleShowBack = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAutoMoving(false);
+    angleYRef.current = 175;
+    angleXBaseRef.current = 6;
+    setRotY(175);
+    setRotX(6);
+    setRotZ(0);
+  };
+
   return (
     <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/90 shadow-xl text-slate-900">
       
@@ -255,46 +275,23 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
 
                   {/* BACK COVER (z = -24px, rotated 180deg) */}
                   <div 
-                    className="absolute inset-0 rounded-l-xl rounded-r-xs overflow-hidden bg-gradient-to-b from-[#0a192f] via-[#112240] to-[#0a192f] border-2 border-slate-700 text-white p-5 flex flex-col justify-between select-none"
+                    className="absolute inset-0 rounded-l-xl rounded-r-xs overflow-hidden bg-white border-2 border-slate-300 shadow-2xl flex flex-col justify-between select-none"
                     style={{
                       transform: 'rotateY(180deg) translateZ(24px)',
                       backfaceVisibility: 'hidden'
                     }}
                   >
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                            VIDYASAGAR 2026 CBAT MASTER
-                          </span>
-                        </div>
-                        <span className="text-[10px] bg-[#ea580c] text-white font-black px-2 py-0.5 rounded">
-                          524 Pages Hardcopy
-                        </span>
-                      </div>
-                      
-                      <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-1.5 text-[10px]">
-                        <span className="font-bold text-amber-300 block">Complete 5 Psycho Batteries Included:</span>
-                        <ul className="space-y-1 text-slate-300 leading-tight">
-                          <li>• <strong>Battery 1:</strong> Memory Test (Building, Track, Figure, Object-No.)</li>
-                          <li>• <strong>Battery 2:</strong> Following Direction & Table Test (Clock Matrix)</li>
-                          <li>• <strong>Battery 3:</strong> Depth Perception (3D Brick Face Contacting)</li>
-                          <li>• <strong>Battery 4:</strong> Concentration Test (Yes/No & Digit 6 / 9 Drills)</li>
-                          <li>• <strong>Battery 5:</strong> Perceptual Speed (Hexagon & Similarity Matching)</li>
-                        </ul>
-                      </div>
-                    </div>
+                    {/* Glossy Sheen Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/15 to-transparent pointer-events-none z-30" />
 
-                    <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[9px] text-slate-400 space-y-2">
-                      <div className="flex items-center justify-between text-white font-bold text-[10px]">
-                        <span>ISBN: 978-93-8921-990-1</span>
-                        <span className="text-emerald-400 font-mono font-black">MRP: ₹899 (Special: ₹499)</span>
-                      </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-800">
-                        <span className="text-[9px] text-slate-300">Published by: Vidyasagar Publication</span>
-                        <span className="text-[9px] text-amber-400 font-bold">50 Physical OMR Sets Included</span>
-                      </div>
-                    </div>
+                    <img 
+                      src={book.backCoverImage || '/assets/book-back.jpg'} 
+                      alt="Railway Psychological/Aptitude Test Back Cover" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/book-back.png';
+                      }}
+                    />
                   </div>
 
                   {/* 3D THICK SPINE (Left face, perfectly joins front & back at x = 0, spanning z = +24px to -24px) */}
@@ -425,31 +422,62 @@ export const AlpBookHero3D: React.FC<AlpBookHero3DProps> = () => {
             </div>
           </div>
 
-            {/* Stop / Start 3D Motion Control Button */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+            {/* 3D Perspective Controls: Front, Back Cover, 360° Spin */}
+            <div 
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-full border border-slate-700/80 shadow-xl cursor-default"
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={handleShowFront}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  !isAutoMoving && (Math.abs(rotY - (-22)) < 30 || Math.abs(rotY) < 30)
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+                title="View Front Cover"
+                id="btn-3d-front"
+              >
+                Front Cover
+              </button>
+
+              <button
+                type="button"
+                onClick={handleShowBack}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  !isAutoMoving && Math.abs(rotY - 175) < 35
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+                title="View Back Cover"
+                id="btn-3d-back"
+              >
+                <span>Back Cover</span>
+              </button>
+
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsAutoMoving((prev) => !prev);
                 }}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm border transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   isAutoMoving
-                    ? 'bg-white/90 hover:bg-white text-slate-700 border-slate-300 hover:border-slate-400'
-                    : 'bg-amber-500 hover:bg-amber-400 text-slate-950 border-amber-600 font-extrabold'
+                    ? 'bg-emerald-500 text-white shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
-                title={isAutoMoving ? 'Stop 3D Motion' : 'Start 3D Motion'}
+                title={isAutoMoving ? 'Pause 360° Turntable' : 'Start 360° Turntable'}
                 id="toggle-3d-motion-btn"
               >
                 {isAutoMoving ? (
                   <>
-                    <Pause className="w-3.5 h-3.5 text-slate-600" />
-                    <span></span>
+                    <Pause className="w-3.5 h-3.5" />
+                    <span>Spinning</span>
                   </>
                 ) : (
                   <>
-                    <Play className="w-3.5 h-3.5 text-slate-950 fill-slate-950" />
-                    <span>Start 3D Motion</span>
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>360° Spin</span>
                   </>
                 )}
               </button>

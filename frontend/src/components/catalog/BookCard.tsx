@@ -114,7 +114,10 @@ export const BookCard: React.FC<BookCardProps> = ({ book }) => {
 
         {/* Book Cover Image & Quick Sample Action */}
         <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 mb-3 group/cover shadow-xs border border-slate-200">
-          <BookCoverGraphic />
+          <BookCoverGraphic 
+            coverImage={book.coverImage}
+            backCoverImage={book.backCoverImage}
+          />
 
           {/* Overlay hover peek */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-0 group-hover/cover:opacity-100 transition-opacity" />

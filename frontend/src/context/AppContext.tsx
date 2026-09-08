@@ -183,7 +183,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Books
   const [books, setBooks] = useState<Book[]>(() => {
     const saved = localStorage.getItem('modi_books');
-    return saved ? JSON.parse(saved) : INITIAL_BOOKS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((b: Book, idx: number) => ({
+            ...b,
+            backCoverImage: b.backCoverImage || (INITIAL_BOOKS[idx]?.backCoverImage || '/assets/book-back.jpg'),
+            coverImage: b.coverImage || (INITIAL_BOOKS[idx]?.coverImage || '/assets/book.jpg')
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to parse saved books from localStorage', e);
+      }
+    }
+    return INITIAL_BOOKS;
   });
 
   // Orders
@@ -462,7 +476,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const booksRes = await fetch(getApiUrl('/api/books'));
         if (booksRes.ok) {
           const booksData = await booksRes.json();
-          setBooks(booksData);
+          if (Array.isArray(booksData) && booksData.length > 0) {
+            setBooks(booksData.map((b: Book, idx: number) => ({
+              ...b,
+              backCoverImage: b.backCoverImage || (INITIAL_BOOKS[idx]?.backCoverImage || '/assets/book-back.jpg')
+            })));
+          }
         }
         
         const ordersRes = await fetch(getApiUrl('/api/orders'));
